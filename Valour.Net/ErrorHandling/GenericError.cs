@@ -14,7 +14,7 @@ namespace Valour.Net.ErrorHandling
     {
         public ErrorTier errorTier { get; set; }
         
-        public GenericError(string message, Exception innerException, ErrorTier errorTier) : base(message, innerException)
+        public GenericError(string message, ErrorTier errorTier, Exception innerException) : base(message, innerException)
         {
             this.errorTier = errorTier;
         }
