@@ -1,12 +1,34 @@
-﻿namespace Valour.Net
+﻿using System.Net.Http;
+namespace Valour.Net
 {
     class BotClient
     {
-        public string Token { get; set; }
+        HttpClient httpClient;
+        private string Token { get; set; }
+        private string Email { get; set; }
+        private string Password { get; set; }
 
-        public BotClient(string token)
+        /// <summary>
+        /// Creates a new instance of a BotClient.
+        /// </summary>
+        /// <param name="email">The email of the bot account. Will be cleared after token is received from the LoginAsync() function</param>
+        /// <param name="password">The password of the bot account. Will be cleared after token is received from the LoginAsync() function</param>
+        public BotClient(string email, string password)
         {
-            Token = token;
+            Email = email;
+            Password = password;
+            httpClient = new HttpClient();
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        public async void LoginAsync(string email, string password)
+        {
+            //await httpClient.GetAsync();
         }
     }
 }

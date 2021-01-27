@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30803.129
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Valour.Net", "Valour.Net\Valour.Net.csproj", "{F843349B-DE35-4206-9E36-DD41A24E72F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valour.Net", "Valour.Net\Valour.Net.csproj", "{0E514006-8F1D-43D6-9FE6-E3263D1E2812}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F843349B-DE35-4206-9E36-DD41A24E72F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F843349B-DE35-4206-9E36-DD41A24E72F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F843349B-DE35-4206-9E36-DD41A24E72F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F843349B-DE35-4206-9E36-DD41A24E72F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E514006-8F1D-43D6-9FE6-E3263D1E2812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E514006-8F1D-43D6-9FE6-E3263D1E2812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E514006-8F1D-43D6-9FE6-E3263D1E2812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E514006-8F1D-43D6-9FE6-E3263D1E2812}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
