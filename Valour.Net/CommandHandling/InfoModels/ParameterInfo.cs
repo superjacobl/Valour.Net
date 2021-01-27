@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Valour.Net.CommandHandling.InfoModels
 {
-    class ParameterInfo
+    public class ParameterInfo
     {
         public string Name { get; set; }
         public Type Type { get; set; }
