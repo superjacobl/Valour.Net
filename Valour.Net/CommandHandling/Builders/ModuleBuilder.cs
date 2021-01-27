@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Valour.Net.CommandHandling
+namespace Valour.Net.CommandHandling.Builders
 {
-    public abstract class CommandModuleBase
+    class ModuleBuilder
     {
     }
 }

@@ -11,7 +11,7 @@ namespace Valour.Net.CommandHandling.Builders
 {
 
     
-    class CommandBuilder
+    public class CommandBuilder
     {
         private CommandInfo CurrentCommand { get; set; }
 
@@ -20,9 +20,17 @@ namespace Valour.Net.CommandHandling.Builders
             CurrentCommand = new CommandInfo();
         }
 
-        public void ProcessMethod(MethodInfo Method)
+        public CommandInfo ProcessMethod(MethodInfo Method)
         {
-        
+            //DEBUG
+            Type magicType = Method.DeclaringType;
+            ConstructorInfo magicConstructor = magicType.GetConstructor(Type.EmptyTypes);
+            object magicClassObject = magicConstructor.Invoke(Array.Empty<object>());
+
+            
+            Method.Invoke(magicClassObject, null);
+
+            return new CommandInfo();
         }
     }
 }

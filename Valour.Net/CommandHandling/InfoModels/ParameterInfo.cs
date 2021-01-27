@@ -10,5 +10,12 @@ namespace Valour.Net.CommandHandling.InfoModels
     {
         public string Name { get; set; }
         public Type Type { get; set; }
+
+
+        public ParameterInfo(string Name, Type Type)
+        {
+            this.Name = Name;
+            this.Type = Type;
+        }
     }
 }
