@@ -6,42 +6,47 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.Builders;
+using Valour.Net.Global;
+using Valour.Net.ModuleHandling;
 
 namespace Valour.Net.CommandHandling
 {
-    public class CommandRegistrar
+    public class ModuleRegistrar
     {
-        public CommandRegistrar()
+        public ModuleRegistrar()
         {
             
         }
 
 
+        /// MOST OF THIS METHOD IS DEBUG
         /// <summary>
         /// Finds all classes that inherit from CommandModuleBase and then finds all methods which have a Command attribute
         /// </summary>
-        /// MOST OF THIS METHOD IS DEBUG
         public void RegisterAllCommands(CommandService commandService)
         {
-            CommandBuilder aa = new CommandBuilder();
-            Assembly assembly = Assembly.GetEntryAssembly();
+            IEnumerable<Type> moudules = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x => typeof(IModuleBase).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
-            IEnumerable<Type> exporters = assembly.GetTypes()
-                .Where(t => t.IsSubclassOf(typeof(CommandModuleBase)) && !t.IsAbstract);
-            //.Select(t => (CommandModuleBase)Activator.CreateInstance(t));
-
-            //DEBUG
-            foreach (Type item in exporters)
+        
+            ///Gets all command modules and processes them
+            foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
             {
-                ConstructorInfo a = item.GetConstructor(Type.EmptyTypes);
+                ModuleBuilder builder = new ModuleBuilder();
+                builder.BuildModule(commandModule);
+                builder.Register();
+
+                /*
+                ConstructorInfo a = commandModule.GetConstructor(Type.EmptyTypes);
                 CommandModuleBase classs = (CommandModuleBase)a.Invoke(Array.Empty<object>());
                 //Console.WriteLine(b);
-                foreach (var methoddd in classs.GetType().GetMethods())
+                foreach (var method in classs.GetType().GetMethods())
                 {
-                    Console.WriteLine(methoddd);
+                    Console.WriteLine(method);
 
                 }
-
+                */
             }
 
             /*

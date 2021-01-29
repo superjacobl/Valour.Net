@@ -22,13 +22,13 @@ namespace Valour.Net
 
 
         /// <summary>
-        /// 
+        /// This is how to "Login" as the bot. All other requests require a token so therefore this must be run first.
         /// </summary>
         /// <param name="email"></param>
         /// <param name="password"></param>
-        public async void LoginAsync(string email, string password)
+        public async void RequestToken(string email, string password)
         {
-            //await httpClient.GetAsync();
+            await httpClient.GetAsync($"https://valour.gg/User/RequestStandardToken?email={email}&password={password}");
         }
     }
 }
