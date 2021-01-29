@@ -1,9 +1,13 @@
 ﻿using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Valour.Net.ErrorHandling;
+
 namespace Valour.Net
 {
     class BotClient
     {
-        HttpClient httpClient;
+        static HttpClient httpClient;
         private string Token { get; set; }
         private string Email { get; set; }
         private string Password { get; set; }
@@ -29,6 +33,21 @@ namespace Valour.Net
         public async void RequestToken(string email, string password)
         {
             await httpClient.GetAsync($"https://valour.gg/User/RequestStandardToken?email={email}&password={password}");
+        }
+
+        public static async Task<ValourResponse<T>> GetData<T>(string url)
+        {
+            var httpResponse = await httpClient.GetAsync(url);
+            ValourResponse<T> response = JsonConvert.DeserializeObject<ValourResponse<T>>(await httpResponse.Content.ReadAsStringAsync());
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                throw new GenericError(
+                    $"Requesting Data from {url} failed with a status code of {httpResponse.StatusCode.ToString()}",
+                    ErrorTier.WARN);
+            }
+
+            return response;
         }
     }
 }
