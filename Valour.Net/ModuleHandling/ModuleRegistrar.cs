@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.Builders;
+using Valour.Net.ErrorHandling;
 using Valour.Net.Global;
 using Valour.Net.ModuleHandling;
 
@@ -18,13 +19,17 @@ namespace Valour.Net.CommandHandling
             
         }
 
-
         /// MOST OF THIS METHOD IS DEBUG
         /// <summary>
         /// Finds all classes that inherit from CommandModuleBase and then finds all methods which have a Command attribute
         /// </summary>
-        public void RegisterAllCommands(CommandService commandService)
+        public void RegisterAllCommands(CommandService commandService, ErrorHandler errorHandler)
         {
+            errorHandler.ReportError(new GenericError("", ErrorSeverity.FATAL));
+
+
+
+
             IEnumerable<Type> moudules = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(x => x.GetTypes())
                 .Where(x => typeof(IModuleBase).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
@@ -33,7 +38,7 @@ namespace Valour.Net.CommandHandling
             ///Gets all command modules and processes them
             foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
             {
-                ModuleBuilder builder = new ModuleBuilder();
+                ModuleBuilder builder = new(commandService);
                 builder.BuildModule(commandModule);
                 builder.Register();
 

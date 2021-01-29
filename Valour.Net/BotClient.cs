@@ -15,8 +15,8 @@ namespace Valour.Net
         /// <summary>
         /// Creates a new instance of a BotClient.
         /// </summary>
-        /// <param name="email">The email of the bot account. Will be cleared after token is received from the LoginAsync() function</param>
-        /// <param name="password">The password of the bot account. Will be cleared after token is received from the LoginAsync() function</param>
+        /// <param name="email">The email of the bot account. Will be cleared after token is received from the RequestTokenAsync() method</param>
+        /// <param name="password">The password of the bot account. Will be cleared after token is received from the RequestTokenAsync() method</param>
         public BotClient(string email, string password)
         {
             Email = email;
@@ -28,11 +28,9 @@ namespace Valour.Net
         /// <summary>
         /// This is how to "Login" as the bot. All other requests require a token so therefore this must be run first.
         /// </summary>
-        /// <param name="email"></param>
-        /// <param name="password"></param>
-        public async void RequestToken(string email, string password)
+        public async void RequestTokenAsync()
         {
-            await httpClient.GetAsync($"https://valour.gg/User/RequestStandardToken?email={email}&password={password}");
+            await httpClient.GetAsync($"https://valour.gg/User/RequestStandardToken?email={Email}&password={Password}");
         }
 
         public static async Task<ValourResponse<T>> GetData<T>(string url)
@@ -43,8 +41,8 @@ namespace Valour.Net
             if (!httpResponse.IsSuccessStatusCode)
             {
                 throw new GenericError(
-                    $"Requesting Data from {url} failed with a status code of {httpResponse.StatusCode.ToString()}",
-                    ErrorTier.WARN);
+                    $"Requesting Data from {url} failed with a status code of {httpResponse.StatusCode} with message {response.Message}",
+                    ErrorSeverity.WARN);
             }
 
             return response;

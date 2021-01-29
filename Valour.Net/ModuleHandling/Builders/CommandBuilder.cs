@@ -13,24 +13,26 @@ namespace Valour.Net.CommandHandling.Builders
     
     public class CommandBuilder
     {
-        private CommandInfo CurrentCommand { get; set; }
+        private CommandInfo Command { get; set; }
 
         public CommandBuilder()
         {
-            CurrentCommand = new CommandInfo();
+            Command = new CommandInfo();
         }
 
-        public CommandInfo ProcessMethod(MethodInfo Method)
+        public void BuildCommand(MethodInfo Method)
         {
             //DEBUG
             Type magicType = Method.DeclaringType;
-            ConstructorInfo magicConstructor = magicType.GetConstructor(Type.EmptyTypes);
-            object magicClassObject = magicConstructor.Invoke(Array.Empty<object>());
-
+            Command.MainAlias = Method.Name;
+            Command.Method = Method;
+            CommandAttribute CommandAttr = (CommandAttribute)Method.GetCustomAttribute(typeof(CommandAttribute));
+            //CommandAttr.
+            //Method.Invoke(magicClassObject, null);
             
-            Method.Invoke(magicClassObject, null);
-
-            return new CommandInfo();
         }
+        
+
+
     }
 }

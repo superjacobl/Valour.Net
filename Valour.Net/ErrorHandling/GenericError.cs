@@ -4,29 +4,31 @@ using System.Text;
 
 namespace Valour.Net.ErrorHandling
 {
-    public enum ErrorTier
+    public enum ErrorSeverity
     {
         FATAL,
         WARN,
         INFO
     }
-    class GenericError : Exception
+    public class GenericError : Exception
     {
-        public ErrorTier errorTier { get; set; }
-        
-        public GenericError(string message, ErrorTier errorTier, Exception innerException) : base(message, innerException)
+        public ErrorSeverity errorTier { get; set; }
+        public DateTime Time { get; set; }
+        public GenericError(string message, ErrorSeverity errorTier, Exception innerException) : base(message, innerException)
         {
             this.errorTier = errorTier;
+            this.Time = DateTime.Now;
         }
 
-        public GenericError(string message, ErrorTier errorTier) : base(message)
+        public GenericError(string message, ErrorSeverity errorTier) : base(message)
         {
             this.errorTier = errorTier;
+            this.Time = DateTime.Now;
         }
 
         public override string ToString()
         {
-            return $"[{errorTier}] {Message}";
+            return $"[{Time.TimeOfDay}][{errorTier}] {Message}";
         }
 
     }
