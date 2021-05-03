@@ -23,7 +23,7 @@ namespace Valour.Net.CommandHandling
         /// <summary>
         /// Finds all classes that inherit from CommandModuleBase and then finds all methods which have a Command attribute
         /// </summary>
-        public void RegisterAllCommands(CommandService commandService, ErrorHandler errorHandler)
+        public static void RegisterAllCommands(ErrorHandler errorHandler)
         {
             errorHandler.ReportError(new GenericError("", ErrorSeverity.FATAL));
 
@@ -38,7 +38,7 @@ namespace Valour.Net.CommandHandling
             ///Gets all command modules and processes them
             foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
             {
-                ModuleBuilder builder = new(commandService);
+                ModuleBuilder builder = new();
                 builder.BuildModule(commandModule);
                 builder.Register();
 
