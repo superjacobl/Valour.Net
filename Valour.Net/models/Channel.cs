@@ -40,5 +40,11 @@ namespace Valour.Net.Models
         /// The description of the channel
         /// </summary>
         public string Description { get; set; }
+
+        public async Task SendMessage(string content)
+        {
+            await ValourClient.PostMessage(Id, Planet_Id, content);
+        }
+
     }
 }

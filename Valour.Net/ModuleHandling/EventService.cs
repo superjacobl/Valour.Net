@@ -25,12 +25,11 @@ namespace Valour.Net.CommandHandling
 
         public static async Task OnMessage(CommandContext ctx)
         {
-            EventInfo Event = _Events.First(x => x.EventName == "Message");
-
-            if (Event != null) {
+            foreach(EventInfo Event in _Events.Where(x => x.EventName == "Message")) {
                 object[] args = new object[1];
                 args[0] = ctx;
-                Event.Method.Invoke(Event.moduleInfo.Instance, args);
+                Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
+                await result;
             }
         }
 

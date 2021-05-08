@@ -26,5 +26,15 @@ namespace Valour.Net.CommandHandling
             //Error checking code needed
             _Modules.Add(module);
         }
+        public static CommandInfo RunCommandString(string commandname, List<string> args, CommandContext ctx)
+        {
+            foreach (ModuleInfo module in _Modules) {
+                CommandInfo command = module.GetCommand(commandname, args, ctx);
+                if (command != null) {
+                    return command;
+                }
+            }
+            return null;
+        }
     }
 }

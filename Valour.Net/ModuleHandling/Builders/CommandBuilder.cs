@@ -13,7 +13,7 @@ namespace Valour.Net.CommandHandling.Builders
     
     public class CommandBuilder
     {
-        private CommandInfo Command { get; set; }
+        public CommandInfo Command { get; set; }
 
         public CommandBuilder()
         {
@@ -54,7 +54,7 @@ namespace Valour.Net.CommandHandling.Builders
 
             Command.Method = Method;
             Command.moduleInfo = moduleInfo;
-            //moduleInfo.AddCommand(Command);
+            moduleInfo.AddCommand(Command);
             CommandService.RegisterCommand(Command);
             foreach (System.Reflection.ParameterInfo parameterinfo in Method.GetParameters()) {
                 if (parameterinfo.ParameterType != typeof(CommandContext)) {

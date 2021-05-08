@@ -66,7 +66,7 @@ namespace Valour.Net
 
             foreach (PlanetMember member in Cache.PlanetMemberCache.Values) {
                 foreach (ulong roleid in member.RoleIds) {
-                    member.RolesNames.Add(Cache.PlanetCache.Values.First(x => x.Id == member.Planet_Id).Roles.First(x => x.Id == roleid).Name);
+                    member.Roles.Add(Cache.PlanetCache.Values.First(x => x.Id == member.Planet_Id).Roles.First(x => x.Id == roleid));
                 }
             }
 
@@ -87,8 +87,10 @@ namespace Valour.Net
 
             hubConnection.On<string>("Relay", OnRelay);
 
-            ModuleRegistrar.RegisterAllCommands(new ErrorHandler());
+        }
 
+        public static void RegisterModules() {
+            ModuleRegistrar.RegisterAllCommands(new ErrorHandler());
         }
 
         public static async Task PostMessage(ulong channelid, ulong planetid, string msg)
@@ -112,7 +114,6 @@ namespace Valour.Net
             CommandContext ctx = new CommandContext();
             await ctx.Set(message);
             await EventService.OnMessage(ctx);
-            await OnMessage.Invoke(message);
 
             // check to see if message has a command in it
 
@@ -129,16 +130,13 @@ namespace Valour.Net
 
                 // get command
 
-                string commandname = message.Content.Split(" ")[0].Replace(BotPrefix, "");
+                string commandname = message.Content.Split(" ")[0].Replace(BotPrefix, "").ToLower();
 
-                PlanetMember member = await message.GetAuthorAsync();
-                
-                CommandInfo command = CommandService._Commands.FirstOrDefault(x => x.CheckIfCommand(commandname, args,member, ctx) == true);
+                CommandInfo command = CommandService.RunCommandString(commandname, args, ctx);
 
                 if (command != null) {
                     command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args,ctx).ToArray());
                 }
-
                 
             }
 

@@ -11,6 +11,7 @@ namespace Valour.Net.CommandHandling.InfoModels
         public List<CommandInfo> Commands { get; set; }
         public List<Attribute> Attributes { get; set; }
         public CommandModuleBase Instance { get; set; }
+        public string GroupName = "";
 
         public ModuleInfo(string Name, List<CommandInfo> Commands, List<Attribute> Attributes, CommandModuleBase Instance)
         {
@@ -23,20 +24,54 @@ namespace Valour.Net.CommandHandling.InfoModels
         //DEBUG
         public ModuleInfo()
         {
-
+            Commands = new List<CommandInfo>();
         }
 
         public void AddCommand(CommandInfo command)
         {
-            if (Commands.Any(c => c.MainAlias.ToLower() == command.MainAlias) || Commands.Any(c => c.Aliases.Contains(command.MainAlias)))
-            {
-                throw new GenericError($"Multiple commands may not use the same alias, Conflicting alias : {command.MainAlias.ToLower()}", ErrorSeverity.FATAL);
-            }
-            if (Commands.Any(c => c.Aliases.Intersect(command.Aliases).Any()))
-            {
-                throw new GenericError($"Multiple commands may not contain the same alternate aliases, Main Alias of conflicting command : {command.MainAlias.ToLower()}", ErrorSeverity.FATAL);
-            }
             Commands.Add(command);
         }
+
+        public CommandInfo GetCommand(string commandname, List<string> args, CommandContext ctx)
+        {
+
+            // check if this a group module
+
+            if (GroupName != "") {
+                if (args.Count() > 0) {
+
+                    // args[0] should be the command prefix
+
+                    if (GroupName == commandname) {
+                        string subcommandname = args[0];
+                        args.RemoveAt(0);
+                        foreach (CommandInfo command in Commands) {
+                            if (command.CheckIfCommand(subcommandname, args, ctx)) {
+                                return command;
+                            }
+                        }
+                    }
+                } 
+                else {
+                    if (GroupName == commandname) {
+                        string subcommandname = "";
+                        foreach (CommandInfo command in Commands) {
+                            if (command.CheckIfCommand(subcommandname, args, ctx)) {
+                                return command;
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+
+            foreach (CommandInfo command in Commands) {
+                if (command.CheckIfCommand(commandname, args, ctx)) {
+                    return command;
+                }
+            }
+            return null;
+        }
+
     }
 }

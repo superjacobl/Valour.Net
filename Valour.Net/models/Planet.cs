@@ -72,5 +72,15 @@ namespace Valour.Net.Models
             return Cache.PlanetMemberCache.Values.First(x => x.Planet_Id == Id && x.User_Id == UserId);
         }
 
+        public async Task<PlanetRole> GetRole(string RoleName) {
+            return Roles.FirstOrDefault(x => x.Name == RoleName);
+        }
+        public async Task<PlanetRole> GetRole(ulong RoleId) {
+            return Roles.FirstOrDefault(x => x.Id == RoleId);
+        }
+        public async Task<PlanetRole> GetRole(PlanetRole Role) {
+            return Roles.FirstOrDefault(x => x == Role);
+        }
+
     }
 }

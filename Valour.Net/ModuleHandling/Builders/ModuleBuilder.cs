@@ -11,7 +11,7 @@ namespace Valour.Net.CommandHandling.Builders
 {
     public class ModuleBuilder
     { 
-        ModuleInfo Module { get; set; }
+        public ModuleInfo Module { get; set; }
         public ModuleBuilder()
         {
             Module = new();

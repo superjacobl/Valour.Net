@@ -9,6 +9,7 @@ using Valour.Net.CommandHandling.Builders;
 using Valour.Net.ErrorHandling;
 using Valour.Net.Global;
 using Valour.Net.ModuleHandling;
+using Valour.Net.CommandHandling.Attributes;
 
 namespace Valour.Net.CommandHandling
 {
@@ -39,7 +40,12 @@ namespace Valour.Net.CommandHandling
             foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
             {
                 ModuleBuilder builder = new();
+                GroupAttribute GroupAttr = (GroupAttribute)commandModule.GetCustomAttribute(typeof(GroupAttribute));
                 builder.BuildModule(commandModule);
+                if (GroupAttr != null) {
+                    builder.Module.GroupName = GroupAttr.Prefix;
+                }
+                CommandService.RegisterModule(builder.Module);
                 builder.Register();
 
                 /*

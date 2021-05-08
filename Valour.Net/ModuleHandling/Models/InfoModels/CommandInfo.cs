@@ -41,7 +41,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                 }
                 else {
                     string remainder = "";
-                    foreach (string arg in args.GetRange(i, args.Count())){
+                    foreach (string arg in args.GetRange(i, args.Count()-1)){
                         remainder += $"{arg} ";
                     }
                     remainder.Substring(0,remainder.Count()-2);
@@ -55,7 +55,7 @@ namespace Valour.Net.CommandHandling.InfoModels
 
         // check if a commandname is this command
 
-        public bool CheckIfCommand(string name, List<string> args, PlanetMember member, CommandContext ctx) {
+        public bool CheckIfCommand(string name, List<string> args, CommandContext ctx) {
             if (MainAlias.ToLower() == name || Aliases.Contains(name)) {
                 if (args.Count() != Parameters.Count()) {
                     if (Parameters.Count() > 0) {
@@ -87,7 +87,7 @@ namespace Valour.Net.CommandHandling.InfoModels
 
                 if (OnlyRoles != null) {
                     foreach (string RoleName in OnlyRoles) {
-                        if (member.RolesNames.Contains(RoleName) != true) {
+                        if (ctx.Member.Roles.Any(x => x.Name == RoleName) != true) {
                             EventService.UserLacksTheRolesToUseACommand(this, ctx);
                             return false;
                         }
@@ -98,7 +98,7 @@ namespace Valour.Net.CommandHandling.InfoModels
 
                 if (ExpectRoles != null) {
                     foreach (string RoleName in ExpectRoles) {
-                        if (member.RolesNames.Contains(RoleName) == true) {
+                        if (ctx.Member.Roles.Any(x => x.Name == RoleName) == true) {
                             return false;
                         }
                     }
