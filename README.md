@@ -1,4 +1,5 @@
 # Valour.Net
 ## An unofficial C# wrapper for the Valour API
 
-[Valour Github](https://github.com/SpikeViper/Valour)
+### [NuGet Package](https://www.nuget.org/packages/Valour.Net/)
+### [Valour Github](https://github.com/SpikeViper/Valour)
