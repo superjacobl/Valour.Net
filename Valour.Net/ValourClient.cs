@@ -32,7 +32,7 @@ namespace Valour.Net
         /// </summary>
         public static async Task RequestTokenAsync(string Email, string Password)
         {
-            Token = await GetData<string>($"https://valour.gg/User/RequestStandardToken?email={Email}&password={Password}");
+            Token = await GetData<string>($"https://valour.gg/User/RequestStandardToken?email={System.Web.HttpUtility.UrlEncode(Email)}&password={System.Web.HttpUtility.UrlEncode(Password)}");
             Console.WriteLine(Token);
         }
 
