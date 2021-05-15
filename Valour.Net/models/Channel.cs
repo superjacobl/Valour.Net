@@ -41,7 +41,7 @@ namespace Valour.Net.Models
         /// </summary>
         public string Description { get; set; }
 
-        public async Task SendMessage(string content)
+        public async Task SendMessageAsync(string content)
         {
             await ValourClient.PostMessage(Id, Planet_Id, content);
         }

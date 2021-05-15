@@ -31,7 +31,13 @@ namespace Valour.Net
             return member;
         }
 
-        public static async Task<Channel> GetPlanetChannel(ulong ChannelId, ulong PlanetId)
+        public static Channel GetPlanetChannel(ulong ChannelId, ulong PlanetId)
+        {
+            Channel channel = ChannelCache.Values.FirstOrDefault(x => x.Id == ChannelId);
+            return channel;
+        }
+
+        public static async Task<Channel> GetPlanetChannelAsync(ulong ChannelId, ulong PlanetId)
         {
             Channel channel = ChannelCache.Values.FirstOrDefault(x => x.Id == ChannelId);
             if (channel == null)
@@ -75,6 +81,7 @@ namespace Valour.Net
 
         public static async Task UpdateMembersFromPlanetAsync(ulong PlanetId)
         {
+            Planet planet = await GetPlanet(PlanetId);
             foreach (PlanetMemberInfo memberinfo in await ValourClient.GetData<List<PlanetMemberInfo>>($"https://valour.gg/Planet/GetPlanetMemberInfo?planet_id={PlanetId}&token={ValourClient.Token}")) {
                 if (PlanetMemberCache.ContainsKey(memberinfo.Member.Id) == false) {
                     PlanetMember member = memberinfo.Member;

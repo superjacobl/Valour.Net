@@ -64,12 +64,16 @@ namespace Valour.Net.Models
             return Cache.ChannelCache.Values.Where(x => x.Planet_Id == Id).ToList();
         }
 
-        public async Task<List<PlanetMember>> GetMembers() {
+        public async Task<List<PlanetMember>> GetMembersAsync() {
             return Cache.PlanetMemberCache.Values.Where(x => x.Planet_Id == Id).ToList();
         }
 
-        public async Task<PlanetMember> GetMember(ulong UserId, ulong PlanetId) {
-            return await Cache.GetPlanetMember(UserId, PlanetId);
+        public List<PlanetMember> GetMembers() {
+            return Cache.PlanetMemberCache.Values.Where(x => x.Planet_Id == Id).ToList();
+        }
+
+        public async Task<PlanetMember> GetMember(ulong UserId) {
+            return await Cache.GetPlanetMember(UserId, Id);
         }
 
         public PlanetRole GetRole(string RoleName) {
@@ -80,6 +84,9 @@ namespace Valour.Net.Models
         }
         public PlanetRole GetRole(PlanetRole Role) {
             return Roles.FirstOrDefault(x => x == Role);
+        }
+        public Channel GetChannel(ulong id) {
+            return Cache.GetPlanetChannel(id, Id);
         }
 
     }

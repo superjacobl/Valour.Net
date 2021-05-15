@@ -45,7 +45,7 @@ namespace Valour.Net.Models
 
         public async Task<Channel> GetChannelAsync()
         {
-            return await Cache.GetPlanetChannel(Channel_Id, Planet_Id);
+            return await Cache.GetPlanetChannelAsync(Channel_Id, Planet_Id);
         }
 
         public async Task<Planet> GetPlanetAsync()
