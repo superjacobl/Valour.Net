@@ -113,6 +113,7 @@ namespace Valour.Net
             PlanetMessage message = JsonConvert.DeserializeObject<PlanetMessage>(data);
             CommandContext ctx = new CommandContext();
             await ctx.Set(message);
+            await OnMessage.Invoke(message);
             await EventService.OnMessage(ctx);
 
             // check to see if message has a command in it
