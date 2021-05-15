@@ -15,12 +15,17 @@ namespace Valour.Net
         
         public static ConcurrentDictionary<ulong, Channel> ChannelCache = new ConcurrentDictionary<ulong, Channel>();
         public static ConcurrentDictionary<ulong, Planet> PlanetCache = new ConcurrentDictionary<ulong, Planet>();
+        public static ConcurrentDictionary<ulong, PlanetRole> PlanetRoleCache = new ConcurrentDictionary<ulong, PlanetRole>();
         public static ConcurrentDictionary<ulong, PlanetMember> PlanetMemberCache = new ConcurrentDictionary<ulong, PlanetMember>();
 
         public static async Task<PlanetMember> GetPlanetMember(ulong UserId, ulong PlanetId) {
             PlanetMember member = PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == PlanetId && x.User_Id == UserId);
             if (member == null) {
                 member = await ValourClient.GetData<PlanetMember>($"https://valour.gg/Planet/GetPlanetMember?user_id={UserId}&planet_id={PlanetId}&auth={ValourClient.Token}");
+                if (member == null) {
+                    return null;
+                }
+                await member.UpdateRoles();
                 PlanetMemberCache.TryAdd(member.Id, member);
             }
             return member;
@@ -54,7 +59,9 @@ namespace Valour.Net
 
         public static async Task UpdatePlanetRoles(ulong PlanetId)
         {
-            await PlanetCache.Values.FirstOrDefault(x => x.Id == PlanetId).GetRoles();
+            Planet planet = await GetPlanet(PlanetId);
+            await planet.GetRoles();
+            planet.Roles.ForEach(x => PlanetRoleCache.AddOrUpdate(x.Id, x, (key, oldValue) => oldValue));
         }
 
         public static async Task UpdateChannelsFromPlanetAsync(ulong PlanetId)

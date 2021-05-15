@@ -24,14 +24,9 @@ namespace Valour.Net.Models
             }
         }
 
-        public async Task<PlanetRole> GetRole(string RoleName) {
-            return Roles.FirstOrDefault(x => x.Name == RoleName);
-        }
-        public async Task<PlanetRole> GetRole(ulong RoleId) {
-            return Roles.FirstOrDefault(x => x.Id == RoleId);
-        }
-        public async Task<PlanetRole> GetRole(PlanetRole Role) {
-            return Roles.FirstOrDefault(x => x == Role);
+        public async Task UpdateRoles() {
+            Roles = await ValourClient.GetData<List<PlanetRole>>($"https://valour.gg/Planet/GetMemberRoles?member_id={Id}&token={ValourClient.Token}");
+            RoleIds = Roles.Select(x => x.Id).ToList();
         }
         public bool HasRole(string RoleName) {
             return Roles.Any(x => x.Name == RoleName);
@@ -41,6 +36,51 @@ namespace Valour.Net.Models
         }
         public bool HasRole(PlanetRole Role) {
             return Roles.Any(x => x == Role);
+        }
+        
+        public async Task<bool> SetRoleMembership(PlanetRole role, bool value) {
+            ValourResponse<string> response = await ValourClient.GetResponse<string>($"https://valour.gg/Planet/SetMemberRoleMembership?role_id={role.Id}&member_id={Id}&value={value}&token={ValourClient.Token}");
+            return response.Success;
+        }
+        public async Task<bool> AddRoleAsync(string name) {
+            PlanetRole role = Cache.PlanetRoleCache.Values.FirstOrDefault(x => x.Name == name);
+            if (role == null) {
+                return false;
+            }
+            return await SetRoleMembership(role, true);
+        }
+        public async Task<bool> AddRoleAsync(ulong roleid) {
+            PlanetRole role = Cache.PlanetRoleCache.Values.FirstOrDefault(x => x.Id == roleid);
+            if (role == null) {
+                return false;
+            }
+            return await SetRoleMembership(role, true);
+        }
+        public async Task<bool> AddRoleAsync(PlanetRole role) {
+            if (role == null) {
+                return false;
+            }
+            return await SetRoleMembership(role, true);
+        }
+        public async Task<bool> RemoveRoleAsync(string name) {
+            PlanetRole role = Cache.PlanetRoleCache.Values.FirstOrDefault(x => x.Name == name);
+            if (role == null) {
+                return false;
+            }
+            return await SetRoleMembership(role, true);
+        }
+        public async Task<bool> RemoveRoleAsync(ulong roleid) {
+            PlanetRole role = Cache.PlanetRoleCache.Values.FirstOrDefault(x => x.Id == roleid);
+            if (role == null) {
+                return false;
+            }
+            return await SetRoleMembership(role, true);
+        }
+        public async Task<bool> RemoveRoleAsync(PlanetRole role) {
+            if (role == null) {
+                return false;
+            }
+            return await SetRoleMembership(role, true);
         }
 
     }
