@@ -2,7 +2,7 @@ using System;
 
 namespace Valour.Net.Models
 {
-    public class User
+    public class ValourUser
     {
         public ulong Id { get; set; }
 

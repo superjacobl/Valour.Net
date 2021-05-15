@@ -42,7 +42,7 @@ namespace Valour.Net
 
             // get botid from token
 
-            BotId = (await GetData<User>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
+            BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
 
             await hubConnection.StartAsync();
 
