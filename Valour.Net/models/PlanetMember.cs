@@ -62,25 +62,33 @@ namespace Valour.Net.Models
             }
             return await SetRoleMembership(role, true);
         }
+        public async Task AddRolesAsync(IEnumerable<PlanetRole> roles) {
+            foreach (PlanetRole role in roles) {
+                await SetRoleMembership(role, true);
+            }
+        }
         public async Task<bool> RemoveRoleAsync(string name) {
             PlanetRole role = Cache.PlanetRoleCache.Values.FirstOrDefault(x => x.Name == name);
             if (role == null) {
                 return false;
             }
-            return await SetRoleMembership(role, true);
+            return await SetRoleMembership(role, false);
         }
         public async Task<bool> RemoveRoleAsync(ulong roleid) {
             PlanetRole role = Cache.PlanetRoleCache.Values.FirstOrDefault(x => x.Id == roleid);
             if (role == null) {
                 return false;
             }
-            return await SetRoleMembership(role, true);
+            return await SetRoleMembership(role, false);
         }
         public async Task<bool> RemoveRoleAsync(PlanetRole role) {
-            if (role == null) {
-                return false;
+            return await SetRoleMembership(role, false);
+        }
+
+        public async Task RemoveRolesAsync(IEnumerable<PlanetRole> roles) {
+            foreach (PlanetRole role in roles) {
+                await SetRoleMembership(role, false);
             }
-            return await SetRoleMembership(role, true);
         }
 
     }
