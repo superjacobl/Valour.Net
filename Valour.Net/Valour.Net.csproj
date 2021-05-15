@@ -3,16 +3,17 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Company />
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageIcon>logo.png</PackageIcon>
     <Description>An unofficial C# wrapper for the Valour API</Description>
-    <Authors>Coca</Authors>
+    <Authors>superjacobl, Coca</Authors>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Valour Valour.Net API Wrapper</PackageTags>
+    <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
     <None Include="..\logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
