@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Valour.Net.Models
@@ -37,6 +38,11 @@ namespace Valour.Net.Models
         public ulong Message_Index { get; set; }
 
         public ulong Planet_Id { get; set; }
+        public Channel Channel;
+        public PlanetMember Author;
+        public Planet Planet;
+        // Valour will add mentions soon
+        public List<PlanetMember> MentionedMembers = new List<PlanetMember>();
 
         public async Task<PlanetMember> GetAuthorAsync()
         {

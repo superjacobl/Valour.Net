@@ -110,6 +110,9 @@ namespace Valour.Net
 
         public static async Task OnRelay(string data) {
             PlanetMessage message = JsonConvert.DeserializeObject<PlanetMessage>(data);
+            message.Author = await message.GetAuthorAsync();
+            message.Channel = await message.GetChannelAsync();
+            message.Planet = await message.GetPlanetAsync();
             CommandContext ctx = new CommandContext();
             await ctx.Set(message);
             await OnMessage.Invoke(message);
