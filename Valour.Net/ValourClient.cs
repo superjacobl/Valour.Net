@@ -19,7 +19,12 @@ namespace Valour.Net
 
         public static ulong BotId {get; set;}
 
-        public static string BotPrefix {get; set;}
+        public static string[] BotPrefix {get; set;}
+
+        public static bool DisallowSelfRespond = true;
+
+        public static bool DisallowBotRespond = true;
+
         public static Func<PlanetMessage, Task> OnMessage;
 
         public static HubConnection hubConnection = new HubConnectionBuilder()
@@ -111,6 +116,8 @@ namespace Valour.Net
         public static async Task OnRelay(string data) {
             PlanetMessage message = JsonConvert.DeserializeObject<PlanetMessage>(data);
             message.Author = await message.GetAuthorAsync();
+            if ((message.Author.IsBot && DisallowBotRespond) || (message.Author.User_Id == BotId && DisallowSelfRespond)) return;
+
             message.Channel = await message.GetChannelAsync();
             message.Planet = await message.GetPlanetAsync();
             CommandContext ctx = new CommandContext();
@@ -119,34 +126,33 @@ namespace Valour.Net
             {
                 await OnMessage.Invoke(message);
             }
-            
+
             await EventService.OnMessage(ctx);
 
             // check to see if message has a command in it
 
-            if (message.Content.Substring(0,1) == BotPrefix) {
+            string commandprefix = BotPrefix.FirstOrDefault(prefix => message.Content.Substring(0, prefix.Length) == prefix);
 
+            if (commandprefix != null)
+            {
                 // get clean command string
 
-                string commandstring = message.Content.Replace(BotPrefix, "");
+                string commandstring = message.Content[commandprefix.Length..];
 
                 // get args
 
                 List<string> args = commandstring.Split(" ").ToList();
-                args.RemoveAt(0);
 
                 // get command
 
-                string commandname = message.Content.Split(" ")[0].Replace(BotPrefix, "").ToLower();
+                string commandname = args[0].ToLower();
+                args.RemoveAt(0);
 
                 CommandInfo command = CommandService.RunCommandString(commandname, args, ctx);
 
-                if (command != null) {
-                    command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args,ctx).ToArray());
-                }
-                
+                if (command != null)
+                    command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
             }
-
         }
 
         public static async Task<ValourResponse<T>> GetResponse<T>(string url)
