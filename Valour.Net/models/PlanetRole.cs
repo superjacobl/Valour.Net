@@ -34,6 +34,11 @@ namespace Valour.Net.Models
         public byte Color_Green { get; set; }
 
         public byte Color_Blue { get; set; }
+        public Color Color { 
+            get {
+                return new Color(Color_Red, Color_Green, Color_Blue);
+            }
+        }
 
         // Formatting options
         public bool Bold { get; set; }
