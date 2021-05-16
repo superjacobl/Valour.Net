@@ -177,7 +177,7 @@ namespace Valour.Net
 
         public static async Task<Planet> GetPlanet(ulong id)
         {
-            return await GetPlanet(id);
+            return await Cache.GetPlanet(id);
         }
 
     }
