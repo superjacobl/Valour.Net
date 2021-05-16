@@ -75,6 +75,9 @@ namespace Valour.Net.Models
         public async Task<PlanetMember> GetMember(ulong UserId) {
             return await Cache.GetPlanetMember(UserId, Id);
         }
+        public PlanetMember GetMemberNonAsync(ulong UserId) {
+            return Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == Id && x.User_Id == UserId);
+        }
 
         public PlanetRole GetRole(string RoleName) {
             return Roles.FirstOrDefault(x => x.Name == RoleName);
