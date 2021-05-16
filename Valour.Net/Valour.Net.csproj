@@ -14,6 +14,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Valour Valour.Net API Wrapper</PackageTags>
     <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+    <PackageReleaseNotes>Adds the ability for multiple prefixes and also DisallowSelfRespond and DisallowBotRespond</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
