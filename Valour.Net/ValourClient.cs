@@ -20,7 +20,7 @@ namespace Valour.Net
         public static ulong BotId {get; set;}
 
         public static string BotPrefix {get; set;}
-        public static event Func<PlanetMessage, Task> OnMessage;
+        public static Func<PlanetMessage, Task> OnMessage;
 
         public static HubConnection hubConnection = new HubConnectionBuilder()
             .WithUrl("https://valour.gg/planethub")
@@ -115,7 +115,11 @@ namespace Valour.Net
             message.Planet = await message.GetPlanetAsync();
             CommandContext ctx = new CommandContext();
             await ctx.Set(message);
-            await OnMessage.Invoke(message);
+            if (OnMessage != null)
+            {
+                await OnMessage.Invoke(message);
+            }
+            
             await EventService.OnMessage(ctx);
 
             // check to see if message has a command in it
