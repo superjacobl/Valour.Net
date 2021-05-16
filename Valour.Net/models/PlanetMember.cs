@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System;
 
 namespace Valour.Net.Models
 {
@@ -11,7 +12,10 @@ namespace Valour.Net.Models
         public ulong User_Id { get; set; }
         public string Nickname { get; set; }
         public string Member_Pfp { get; set; }
+        public DateTimeOffset JoinedAt { get; set; }
         public List<ulong> RoleIds {get; set;}
+        // add bot checking later
+        public bool IsBot = false;
         public List<PlanetRole> Roles = new List<PlanetRole>();
 
         public async Task<bool> IsOwner() {
@@ -36,6 +40,28 @@ namespace Valour.Net.Models
         }
         public bool HasRole(PlanetRole Role) {
             return Roles.Any(x => x == Role);
+        }
+        /// <summary>
+        /// If all is true, then the member must have all roles
+        /// </summary>
+        /// <returns></returns>
+        public bool HasRoles(IEnumerable<PlanetRole> TestRoles, bool All = false) {
+            if (All) {
+                foreach (PlanetRole role in TestRoles) {
+                    if (!Roles.Any(x => x == role)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else {
+                foreach (PlanetRole role in TestRoles) {
+                    if (Roles.Any(x => x == role)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
         
         public async Task<bool> SetRoleMembership(PlanetRole role, bool value) {
@@ -89,6 +115,11 @@ namespace Valour.Net.Models
             foreach (PlanetRole role in roles) {
                 await SetRoleMembership(role, false);
             }
+        }
+        // add ban
+        public async Task BanAsync()
+        {
+
         }
 
     }
