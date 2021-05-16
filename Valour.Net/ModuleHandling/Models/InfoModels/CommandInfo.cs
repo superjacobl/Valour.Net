@@ -41,7 +41,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                 }
                 else {
                     string remainder = "";
-                    foreach (string arg in args.GetRange(i, args.Count()-1)){
+                    foreach (string arg in args.GetRange(i, args.Count())){
                         remainder += $"{arg} ";
                     }
                     remainder.Substring(0,remainder.Count()-2);
