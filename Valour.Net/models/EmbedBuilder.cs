@@ -38,12 +38,8 @@ namespace Valour.Net.Models
         {
             return this;
         }
-        public Color Color { get => Color; set {
-            Color = value;
-        }}
-        public string Title { get => Title; set {
-            Title = value;
-        }}
+        public Color Color { get; set;}
+        public string Title { get; set;}
 
         public void AddField(string name, string value) {
             Content += $"\n{name}: {value}";
