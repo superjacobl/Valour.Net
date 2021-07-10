@@ -11,8 +11,8 @@ namespace Valour.Net.CommandHandling.Builders
 {
     public class ModuleBuilder
     { 
-        ModuleInfo Module { get; set; }
-        public ModuleBuilder(CommandService commandService)
+        public ModuleInfo Module { get; set; }
+        public ModuleBuilder()
         {
             Module = new();
         }
@@ -31,11 +31,20 @@ namespace Valour.Net.CommandHandling.Builders
             Module.Instance = moduleInstance;
             Module.Name = module.Name;
 
-            CommandBuilder builder = new();
-
             foreach (MethodInfo method in module.GetMethods().Where(m => m.GetCustomAttributes(typeof(CommandAttribute), false).Length > 0))
             {
-                builder.BuildCommand(method);
+                CommandBuilder builder = new();
+                builder.BuildCommand(method, Module);
+            }
+
+            foreach (MethodInfo method in module.GetMethods().Where(m => m.GetCustomAttributes(typeof(EventAttribute), false).Length > 0))
+            {
+                InfoModels.EventInfo eventInfo = new();
+                EventAttribute EventAttr = (EventAttribute)method.GetCustomAttribute(typeof(EventAttribute));
+                eventInfo.EventName = EventAttr.Name;
+                eventInfo.Method = method;
+                eventInfo.moduleInfo = Module;
+                EventService._Events.Add(eventInfo);
             }
             
         }

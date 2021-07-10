@@ -7,30 +7,34 @@ using Valour.Net.CommandHandling.InfoModels;
 
 namespace Valour.Net.CommandHandling
 {
-    public class CommandService
+    public static class CommandService
     {
-        private List<ModuleInfo> _Modules { get; set; }
-        private List<CommandInfo> _Commands { get; set; }
+        public static List<ModuleInfo> _Modules { get; set; } = new List<ModuleInfo>();
+        public static List<CommandInfo> _Commands { get; set; } = new List<CommandInfo>();
 
 
         //private Dictionary<CommandInfo, ModuleInfo> CommandModuleMap { get; set; }
 
-        public CommandService()
-        {
-            _Modules = new List<ModuleInfo>();
-            _Commands = new List<CommandInfo>();
-        }
-
-        public void RegisterCommand(CommandInfo command)
+        public static void RegisterCommand(CommandInfo command)
         {
             //Error checking code needed
             _Commands.Add(command);
         }
 
-        public void RegisterModule(ModuleInfo module)
+        public static void RegisterModule(ModuleInfo module)
         {
             //Error checking code needed
             _Modules.Add(module);
+        }
+        public static CommandInfo RunCommandString(string commandname, List<string> args, CommandContext ctx)
+        {
+            foreach (ModuleInfo module in _Modules) {
+                CommandInfo command = module.GetCommand(commandname, args, ctx);
+                if (command != null) {
+                    return command;
+                }
+            }
+            return null;
         }
     }
 }

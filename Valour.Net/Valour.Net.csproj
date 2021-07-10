@@ -2,10 +2,32 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.2.0</Version>
+    <Company />
+    <PackageLicenseFile></PackageLicenseFile>
+    <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageIcon>logo.png</PackageIcon>
+    <Description>An unofficial C# wrapper for the Valour API</Description>
+    <Authors>superjacobl, Coca</Authors>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Valour Valour.Net API Wrapper</PackageTags>
+    <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+    <PackageReleaseNotes>Adds the ability for multiple prefixes and also DisallowSelfRespond and DisallowBotRespond</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
