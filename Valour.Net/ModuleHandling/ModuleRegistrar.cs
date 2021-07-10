@@ -10,6 +10,7 @@ using Valour.Net.ErrorHandling;
 using Valour.Net.Global;
 using Valour.Net.ModuleHandling;
 using Valour.Net.CommandHandling.Attributes;
+using System.Diagnostics.Contracts;
 
 namespace Valour.Net.CommandHandling
 {
@@ -26,7 +27,7 @@ namespace Valour.Net.CommandHandling
         /// </summary>
         public static void RegisterAllCommands(ErrorHandler errorHandler)
         {
-            errorHandler.ReportError(new GenericError("", ErrorSeverity.FATAL));
+            //errorHandler.ReportError(new GenericError("", ErrorSeverity.FATAL));
 
 
 
@@ -40,6 +41,8 @@ namespace Valour.Net.CommandHandling
             foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
             {
                 ModuleBuilder builder = new();
+
+                //Check for command group attribute
                 GroupAttribute GroupAttr = (GroupAttribute)commandModule.GetCustomAttribute(typeof(GroupAttribute));
                 builder.BuildModule(commandModule);
                 if (GroupAttr != null) {
@@ -47,6 +50,16 @@ namespace Valour.Net.CommandHandling
                 }
                 CommandService.RegisterModule(builder.Module);
                 builder.Register();
+
+                DontAutoLoadAttribute autoLoadAttribute = (DontAutoLoadAttribute)commandModule.GetCustomAttribute(typeof(DontAutoLoadAttribute));               
+                if (autoLoadAttribute != null)
+                {
+                    //Skip module as it is marked to not be loaded at start
+                    continue;
+                }
+                CommandService.RegisterModule(builder.Module);
+                builder.Register();
+
 
                 /*
                 ConstructorInfo a = commandModule.GetConstructor(Type.EmptyTypes);

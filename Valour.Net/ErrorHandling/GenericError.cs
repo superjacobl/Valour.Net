@@ -28,7 +28,7 @@ namespace Valour.Net.ErrorHandling
 
         public override string ToString()
         {
-            return $"[{Time.TimeOfDay}][{errorTier}] {Message}";
+            return $"[{Time:HH:mm:ss}][{errorTier}] {Message}";
         }
 
     }
