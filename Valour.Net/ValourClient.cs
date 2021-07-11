@@ -112,9 +112,8 @@ namespace Valour.Net
 
             // load cache from Valour
             
+            //int returnline = Console.GetCursorPosition().Top;
             Console.WriteLine("Loading up Cache");
-            
-            //(int,int) returnpos = Console.GetCursorPosition();
 
             await Cache.UpdatePlanetAsync();
 
@@ -138,14 +137,14 @@ namespace Valour.Net
                 }
             }
 
-            //Console.SetCursorPosition(returnpos.Item1, returnpos.Item2);
-            //Console.WriteLine("\rLoading up Cache - Done!");
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Loading up Cache - Done!");
 
             // set up signalr stuff
 
+            //returnline = Console.GetCursorPosition().Top;
             Console.WriteLine("Connecting to Valour");
-            //returnpos = Console.GetCursorPosition();
-            //Console.WriteLine();
+
 
             // join every planet and channel
 
@@ -160,18 +159,19 @@ namespace Valour.Net
 
             hubConnection.On<string>("Relay", OnRelay);
 
-            //Console.SetCursorPosition(returnpos.Item1, returnpos.Item2);
-            //Console.WriteLine("\rConnecting to Valour - Done!");
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Connecting to Valour - Done!");
 
 
             //Register Modules
 
+            //returnline = Console.GetCursorPosition().Top;
             Console.WriteLine("Registering Modules");
-            //eturnpos = Console.GetCursorPosition();
 
             RegisterModules();
 
-            //Console.WriteLine("\rRegistering Modules - Done!");
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Registering Modules - Done!");
 
 
             
