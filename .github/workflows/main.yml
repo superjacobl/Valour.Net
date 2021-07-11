@@ -23,7 +23,7 @@ jobs:
       id: sync
       uses: aormsby/Fork-Sync-With-Upstream-action@v2.1
       with:
-        upstream_repository: NiamiTV/Valour.Net
+        upstream_repository: superjacobl/Valour.Net
         upstream_branch: main
         target_branch: archive
         git_pull_args: --ff-only                    # optional arg use, defaults to simple 'pull'
