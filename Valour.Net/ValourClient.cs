@@ -49,6 +49,11 @@ namespace Valour.Net
         /// <param name="prefix">The new prefix</param>
         public static void SetPrefix(string prefix)
         {
+            if (Char.IsLetterOrDigit(prefix.Last()))
+            {
+                errorHandler.ReportError(new GenericError($"Attempted to set invalid prefix {prefix}. A prefix must contain a non-alphanumeric character at the end.", ErrorSeverity.WARN));
+                return;
+            }
             BotPrefixList.Clear();
             BotPrefixList.Add(prefix);
         }
@@ -59,13 +64,18 @@ namespace Valour.Net
         /// <param name="prefix">New prefix to be added</param>
         public static void AddPrefix(string prefix)
         {
+            if (Char.IsLetterOrDigit(prefix.Last()))
+            {
+                errorHandler.ReportError(new GenericError($"Attempted to add invalid prefix {prefix}. A prefix must contain a non-alphanumeric character at the end.", ErrorSeverity.WARN));
+                return;
+            }
             if (!BotPrefixList.Contains(prefix))
             {
                 BotPrefixList.Add(prefix);
             }
             else
             {
-                errorHandler.ReportError(new GenericError($"Attempted to add prefix {prefix} while it is already a recognised prefix", ErrorSeverity.WARN));           
+                errorHandler.ReportError(new GenericError($"Attempted to add prefix {prefix} while it is already a recognised prefix.", ErrorSeverity.WARN));           
             }
         }
 
@@ -77,7 +87,7 @@ namespace Valour.Net
         {
             if (!BotPrefixList.Remove(prefix))
             {
-                errorHandler.ReportError(new GenericError($"Attempted to remove prefix {prefix} but it was not a recognised prefix", ErrorSeverity.WARN));
+                errorHandler.ReportError(new GenericError($"Attempted to remove prefix {prefix} but it was not a recognised prefix.", ErrorSeverity.WARN));
             }
         }
 
@@ -87,7 +97,8 @@ namespace Valour.Net
 
             if (BotPrefixList.Count < 1)
             {
-                errorHandler.ReportError(new GenericError($"Bot was started with no recognied prefixes", ErrorSeverity.WARN));
+                errorHandler.ReportError(new GenericError($"Bot was started with no recognied prefixes. Adding \"/\" as the default prefix.", ErrorSeverity.WARN));
+                SetPrefix("/");
             }
 
             await RequestTokenAsync(email, password);
@@ -214,8 +225,18 @@ namespace Valour.Net
 
                 CommandInfo command = CommandService.RunCommandString(commandname, args, ctx);
 
-                if (command != null)
-                    command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+                if (command != null) 
+                {
+                    try
+                    {
+                        command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+
+                    }
+                    catch (Exception e)
+                    {
+                        errorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL));
+                    }
+                }
             }
         }
 
