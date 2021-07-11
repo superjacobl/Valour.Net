@@ -6,6 +6,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
+using Valour.Net.ModuleHandling.Attributes;
+using Valour.Net.ErrorHandling;
 
 namespace Valour.Net.CommandHandling.Builders
 {
@@ -33,6 +35,8 @@ namespace Valour.Net.CommandHandling.Builders
             CommandAttribute CommandAttr = (CommandAttribute)Method.GetCustomAttribute(typeof(CommandAttribute));
             Command.MainAlias = CommandAttr.Name;
             Command.Aliases = new List<string>();
+            Command.Method = Method;
+            Command.moduleInfo = moduleInfo;
             AliasAttribute AliasAttr = (AliasAttribute)Method.GetCustomAttribute(typeof(AliasAttribute));
             if (AliasAttr != null) {
                 foreach (string alias in AliasAttr.Aliases) {
@@ -52,15 +56,34 @@ namespace Valour.Net.CommandHandling.Builders
                 Command.ExpectRoles.AddRange(expectRoleAttribute.Roles);
             }
 
-            Command.Method = Method;
-            Command.moduleInfo = moduleInfo;
-            moduleInfo.AddCommand(Command);
-            CommandService.RegisterCommand(Command);
-            foreach (System.Reflection.ParameterInfo parameterinfo in Method.GetParameters()) {
-                if (parameterinfo.ParameterType != typeof(CommandContext)) {
-                    AddParameter(parameterinfo);
+            FallBackAttribute fallBackAttribute = (FallBackAttribute)Method.GetCustomAttribute(typeof(FallBackAttribute));
+            if (fallBackAttribute != null)
+            {
+                if (Method.GetParameters().Any(parameter => parameter.ParameterType != typeof(CommandContext)))
+                {
+                    Console.WriteLine(new GenericError($"Fallback method {Command.MainAlias} in module {moduleInfo.Name} contains parameters other than CommandContext. Command will not be loaded", ErrorSeverity.WARN));
+                    return;
+                }
+                Command.IsFallback = true;
+            }
+
+
+
+            if (!Command.IsFallback)
+            {
+                foreach (System.Reflection.ParameterInfo parameterinfo in Method.GetParameters())
+                {
+                    if (parameterinfo.ParameterType != typeof(CommandContext))
+                    {
+                        AddParameter(parameterinfo);
+                    }
                 }
             }
+            
+            
+            moduleInfo.AddCommand(Command);
+            CommandService.RegisterCommand(Command);
+            
             //CommandAttr.
             //Method.Invoke(magicClassObject, null);
             

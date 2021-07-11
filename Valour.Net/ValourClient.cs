@@ -10,6 +10,7 @@ using System.Linq;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.InfoModels;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Connections.Features;
 
 namespace Valour.Net
 {
@@ -111,7 +112,8 @@ namespace Valour.Net
 
             // load cache from Valour
             
-            Console.Write("Loading up Cache - ");
+            //int returnline = Console.GetCursorPosition().Top;
+            Console.WriteLine("Loading up Cache");
 
             await Cache.UpdatePlanetAsync();
 
@@ -135,11 +137,14 @@ namespace Valour.Net
                 }
             }
 
-            Console.WriteLine("Done!");
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Loading up Cache - Done!");
 
             // set up signalr stuff
 
-            Console.Write("Connecting to Valour - ");
+            //returnline = Console.GetCursorPosition().Top;
+            Console.WriteLine("Connecting to Valour");
+
 
             // join every planet and channel
 
@@ -154,17 +159,22 @@ namespace Valour.Net
 
             hubConnection.On<string>("Relay", OnRelay);
 
-            Console.WriteLine("Done!");
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Connecting to Valour - Done!");
 
 
             //Register Modules
 
-            Console.Write("Registering Modules - ");
+            //returnline = Console.GetCursorPosition().Top;
+            Console.WriteLine("Registering Modules");
 
             RegisterModules();
 
-            Console.WriteLine("Done!");
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Registering Modules - Done!");
 
+
+            
             Console.WriteLine("\n-----Ready----- ");      
         }
 
@@ -227,10 +237,11 @@ namespace Valour.Net
 
                 if (command != null) 
                 {
+                    if (command.IsFallback)
+                        args.Clear();
                     try
                     {
                         command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
-
                     }
                     catch (Exception e)
                     {
