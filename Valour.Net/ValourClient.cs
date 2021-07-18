@@ -1,16 +1,15 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
-using Valour.Net.ErrorHandling;
 using System;
-using Microsoft.AspNetCore.SignalR.Client;
-using Valour.Net.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.InfoModels;
-using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Connections.Features;
+using Valour.Net.ErrorHandling;
+using Valour.Net.Models;
 
 namespace Valour.Net
 {
@@ -76,7 +75,7 @@ namespace Valour.Net
             }
             else
             {
-                errorHandler.ReportError(new GenericError($"Attempted to add prefix {prefix} while it is already a recognised prefix.", ErrorSeverity.WARN));           
+                errorHandler.ReportError(new GenericError($"Attempted to add prefix {prefix} while it is already a recognised prefix.", ErrorSeverity.WARN));
             }
         }
 
@@ -92,7 +91,7 @@ namespace Valour.Net
             }
         }
 
-        public static async Task Start(string email, string password) 
+        public static async Task Start(string email, string password)
         {
             Console.WriteLine("Loading up...");
 
@@ -111,7 +110,7 @@ namespace Valour.Net
             await hubConnection.StartAsync();
 
             // load cache from Valour
-            
+
             //int returnline = Console.GetCursorPosition().Top;
             Console.WriteLine("Loading up Cache");
 
@@ -119,7 +118,8 @@ namespace Valour.Net
 
             List<Task> tasks = new List<Task>();
 
-            foreach (Planet planet in Cache.PlanetCache.Values) {
+            foreach (Planet planet in Cache.PlanetCache.Values)
+            {
                 tasks.Add(Task.Run(async () => await Cache.UpdateMembersFromPlanetAsync(planet.Id)));
                 tasks.Add(Task.Run(async () => await Cache.UpdateChannelsFromPlanetAsync(planet.Id)));
                 tasks.Add(Task.Run(async () => await Cache.UpdatePlanetRoles(planet.Id)));
@@ -131,8 +131,10 @@ namespace Valour.Net
 
             // use basic variable caching to improve the speed of this in the future
 
-            foreach (PlanetMember member in Cache.PlanetMemberCache.Values) {
-                foreach (ulong roleid in member.RoleIds) {
+            foreach (PlanetMember member in Cache.PlanetMemberCache.Values)
+            {
+                foreach (ulong roleid in member.RoleIds)
+                {
                     member.Roles.Add(Cache.PlanetCache.Values.First(x => x.Id == member.Planet_Id).Roles.First(x => x.Id == roleid));
                 }
             }
@@ -148,9 +150,11 @@ namespace Valour.Net
 
             // join every planet and channel
 
-            foreach (Planet planet in Cache.PlanetCache.Values) {
+            foreach (Planet planet in Cache.PlanetCache.Values)
+            {
                 await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false);
-                foreach(Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id)) {
+                foreach (Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id))
+                {
                     await hubConnection.SendAsync("JoinChannel", channel.Id, Token).ConfigureAwait(false);
                 }
             }
@@ -174,11 +178,12 @@ namespace Valour.Net
             //Console.WriteLine("Registering Modules - Done!");
 
 
-            
-            Console.WriteLine("\n-----Ready----- ");      
+
+            Console.WriteLine("\n-----Ready----- ");
         }
 
-        public static void RegisterModules() {
+        public static void RegisterModules()
+        {
             ModuleRegistrar.RegisterAllCommands(errorHandler);
         }
 
@@ -190,15 +195,22 @@ namespace Valour.Net
                 Content = msg,
                 TimeSent = DateTime.UtcNow,
                 Author_Id = BotId,
+                Member_Id = (await Cache.GetPlanetMember(BotId, planetid)).Id,
                 Planet_Id = planetid
             };
 
             //string json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
 
             HttpResponseMessage httpresponse = await httpClient.PostAsJsonAsync<PlanetMessage>($"https://valour.gg/Channel/PostMessage?token={Token}", message);
+            ValourResponse<string> valourResponse = await httpresponse.Content.ReadFromJsonAsync<ValourResponse<string>>();
+            if (!httpresponse.IsSuccessStatusCode || valourResponse.Success == false)
+            {
+                errorHandler.ReportError(new($"Error when attempting to post message : {valourResponse.Message}", ErrorSeverity.FATAL));
+            }
         }
 
-        public static async Task OnRelay(string data) {
+        public static async Task OnRelay(string data)
+        {
             PlanetMessage message = JsonConvert.DeserializeObject<PlanetMessage>(data);
             message.Author = await message.GetAuthorAsync();
             if ((message.Author.IsBot && DisallowBotRespond) || (message.Author.User_Id == BotId && DisallowSelfRespond)) return;
@@ -235,7 +247,7 @@ namespace Valour.Net
 
                 CommandInfo command = CommandService.RunCommandString(commandname, args, ctx);
 
-                if (command != null) 
+                if (command != null)
                 {
                     if (command.IsFallback)
                         args.Clear();
