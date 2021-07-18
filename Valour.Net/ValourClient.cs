@@ -1,14 +1,15 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
-using Valour.Net.ErrorHandling;
 using System;
-using Microsoft.AspNetCore.SignalR.Client;
-using Valour.Net.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.InfoModels;
+using Valour.Net.ErrorHandling;
+using Valour.Net.Models;
 
 namespace Valour.Net
 {
@@ -17,9 +18,9 @@ namespace Valour.Net
         static HttpClient httpClient = new HttpClient();
         public static string Token { get; set; }
 
-        public static ulong BotId {get; set;}
+        public static ulong BotId { get; set; }
 
-        public static string[] BotPrefix {get; set;}
+        public static List<string> BotPrefixList = new List<string>();
 
         public static bool DisallowSelfRespond = true;
 
@@ -32,6 +33,8 @@ namespace Valour.Net
             .WithAutomaticReconnect()
             .Build();
 
+        public static ErrorHandler errorHandler = new();
+
         /// <summary>
         /// This is how to "Login" as the bot. All other requests require a token so therefore this must be run first.
         /// </summary>
@@ -40,8 +43,68 @@ namespace Valour.Net
             Token = await GetData<string>($"https://valour.gg/User/RequestStandardToken?email={System.Web.HttpUtility.UrlEncode(Email)}&password={System.Web.HttpUtility.UrlEncode(Password)}");
         }
 
-        public static async Task Start(string email, string password) 
+        /// <summary>
+        /// This will overwrite the current prefix list removing any current prefixes and setting the provided prefix as the only prefix
+        /// </summary>
+        /// <param name="prefix">The new prefix</param>
+        public static void SetPrefix(string prefix)
         {
+            /*
+            if (Char.IsLetterOrDigit(prefix.Last()))
+            {
+                errorHandler.ReportError(new GenericError($"Attempted to set invalid prefix {prefix}. A prefix must contain a non-alphanumeric character at the end.", ErrorSeverity.WARN));
+                return;
+            }
+            */
+            BotPrefixList.Clear();
+            BotPrefixList.Add(prefix);
+        }
+
+        /// <summary>
+        /// Add new prefix to recognised prefixes list
+        /// </summary>
+        /// <param name="prefix">New prefix to be added</param>
+        public static void AddPrefix(string prefix)
+        {
+            /*
+            if (Char.IsLetterOrDigit(prefix.Last()))
+            {
+                errorHandler.ReportError(new GenericError($"Attempted to add invalid prefix {prefix}. A prefix must contain a non-alphanumeric character at the end.", ErrorSeverity.WARN));
+                return;
+            }
+            */
+            if (!BotPrefixList.Contains(prefix))
+            {
+                BotPrefixList.Add(prefix);
+            }
+            else
+            {
+                errorHandler.ReportError(new GenericError($"Attempted to add prefix {prefix} while it is already a recognised prefix.", ErrorSeverity.WARN));
+            }
+        }
+
+        /// <summary>
+        /// Remove prefix from currently recognised prefixes
+        /// </summary>
+        /// <param name="prefix">Prefix to be removed</param>
+        public static void RemovePrefix(string prefix)
+        {
+            if (!BotPrefixList.Remove(prefix))
+            {
+                errorHandler.ReportError(new GenericError($"Attempted to remove prefix {prefix} but it was not a recognised prefix.", ErrorSeverity.WARN));
+            }
+        }
+
+        public static async Task Start(string email, string password)
+        {
+            Console.WriteLine("Loading up...");
+
+            if (BotPrefixList.Count < 1)
+            {
+                errorHandler.ReportError(new GenericError($"Bot was started with no recognied prefixes. Adding \"/\" as the default prefix.", ErrorSeverity.WARN));
+                SetPrefix("/");
+            }
+
             await RequestTokenAsync(email, password);
 
             // get botid from token
@@ -52,11 +115,15 @@ namespace Valour.Net
 
             // load cache from Valour
 
+            //int returnline = Console.GetCursorPosition().Top;
+            Console.WriteLine("Loading up Cache");
+
             await Cache.UpdatePlanetAsync();
 
             List<Task> tasks = new List<Task>();
 
-            foreach (Planet planet in Cache.PlanetCache.Values) {
+            foreach (Planet planet in Cache.PlanetCache.Values)
+            {
                 tasks.Add(Task.Run(async () => await Cache.UpdateMembersFromPlanetAsync(planet.Id)));
                 tasks.Add(Task.Run(async () => await Cache.UpdateChannelsFromPlanetAsync(planet.Id)));
                 tasks.Add(Task.Run(async () => await Cache.UpdatePlanetRoles(planet.Id)));
@@ -68,21 +135,30 @@ namespace Valour.Net
 
             // use basic variable caching to improve the speed of this in the future
 
-            foreach (PlanetMember member in Cache.PlanetMemberCache.Values) {
-                foreach (ulong roleid in member.RoleIds) {
+            foreach (PlanetMember member in Cache.PlanetMemberCache.Values)
+            {
+                foreach (ulong roleid in member.RoleIds)
+                {
                     member.Roles.Add(Cache.PlanetCache.Values.First(x => x.Id == member.Planet_Id).Roles.First(x => x.Id == roleid));
                 }
             }
 
-            Console.WriteLine("Done loading up Cache!");
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Loading up Cache - Done!");
 
-            // set up signar stuff
+            // set up signalr stuff
+
+            //returnline = Console.GetCursorPosition().Top;
+            Console.WriteLine("Connecting to Valour");
+
 
             // join every planet and channel
 
-            foreach(Planet planet in Cache.PlanetCache.Values) {
+            foreach (Planet planet in Cache.PlanetCache.Values)
+            {
                 await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false);
-                foreach(Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id)) {
+                foreach (Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id))
+                {
                     await hubConnection.SendAsync("JoinChannel", channel.Id, Token).ConfigureAwait(false);
                 }
             }
@@ -91,10 +167,28 @@ namespace Valour.Net
 
             hubConnection.On<string>("Relay", OnRelay);
 
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Connecting to Valour - Done!");
+
+
+            //Register Modules
+
+            //returnline = Console.GetCursorPosition().Top;
+            Console.WriteLine("Registering Modules");
+
+            RegisterModules();
+
+            //Console.SetCursorPosition(0, returnline);
+            //Console.WriteLine("Registering Modules - Done!");
+
+
+
+            Console.WriteLine("\n-----Ready----- ");
         }
 
-        public static void RegisterModules() {
-            ModuleRegistrar.RegisterAllCommands(new ErrorHandler());
+        public static void RegisterModules()
+        {
+            ModuleRegistrar.RegisterAllCommands(errorHandler);
         }
 
         public static async Task PostMessage(ulong channelid, ulong planetid, string msg)
@@ -105,15 +199,22 @@ namespace Valour.Net
                 Content = msg,
                 TimeSent = DateTime.UtcNow,
                 Author_Id = BotId,
+                Member_Id = (await Cache.GetPlanetMember(BotId, planetid)).Id,
                 Planet_Id = planetid
             };
 
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
+            //string json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
 
             HttpResponseMessage httpresponse = await httpClient.PostAsJsonAsync<PlanetMessage>($"https://valour.gg/Channel/PostMessage?token={Token}", message);
+            ValourResponse<string> valourResponse = await httpresponse.Content.ReadFromJsonAsync<ValourResponse<string>>();
+            if (!httpresponse.IsSuccessStatusCode || valourResponse.Success == false)
+            {
+                errorHandler.ReportError(new($"Error when attempting to post message : {valourResponse.Message}", ErrorSeverity.FATAL));
+            }
         }
 
-        public static async Task OnRelay(string data) {
+        public static async Task OnRelay(string data)
+        {
             PlanetMessage message = JsonConvert.DeserializeObject<PlanetMessage>(data);
             message.Author = await message.GetAuthorAsync();
             if ((message.Author.IsBot && DisallowBotRespond) || (message.Author.User_Id == BotId && DisallowSelfRespond)) return;
@@ -131,7 +232,7 @@ namespace Valour.Net
 
             // check to see if message has a command in it
 
-            string commandprefix = BotPrefix.FirstOrDefault(prefix => message.Content.Substring(0, prefix.Length) == prefix);
+            string commandprefix = BotPrefixList.FirstOrDefault(prefix => message.Content.Substring(0, prefix.Length) == prefix);
 
             if (commandprefix != null)
             {
@@ -151,7 +252,18 @@ namespace Valour.Net
                 CommandInfo command = CommandService.RunCommandString(commandname, args, ctx);
 
                 if (command != null)
-                    command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+                {
+                    if (command.IsFallback)
+                        args.Clear();
+                    try
+                    {
+                        command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+                    }
+                    catch (Exception e)
+                    {
+                        errorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL));
+                    }
+                }
             }
         }
 

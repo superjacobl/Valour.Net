@@ -13,22 +13,24 @@ namespace Valour.Net.CommandHandling.InfoModels
     {
         public string MainAlias { get; set; }
         public List<string> Aliases { get; set; }
-        public List<Attribute> Attributes { get; set; }
+        //public List<Attribute> Attributes { get; set; }
         public List<string> OnlyRoles { get; set; }
         public List<string> ExpectRoles { get; set; }
         public List<ParameterInfo> Parameters { get; set; }
         public ModuleInfo moduleInfo {get ;set;}
         public MethodInfo Method { get; set; }
+        public bool IsFallback { get; set; }
 
-
-        public CommandInfo(string MainAlias, List<string> Aliases, List<Attribute> Attributes, List<ParameterInfo> Parameters, MethodInfo Method)
+        /*
+        public CommandInfo(string MainAlias, List<string> Aliases, List<ParameterInfo> Parameters, MethodInfo Method)
         {
             this.MainAlias = MainAlias;
             this.Aliases = Aliases;
-            this.Attributes = Attributes;
+            //this.Attributes = Attributes;
             this.Parameters = Parameters;
             this.Method = Method;
         }
+        */
 
         public List<object> ConvertStringArgs(List<string> args, CommandContext ctx) {
             List<object> objects = new List<object>();

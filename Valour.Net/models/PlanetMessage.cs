@@ -18,6 +18,11 @@ namespace Valour.Net.Models
         public ulong Author_Id { get; set; }
 
         /// <summary>
+        /// The user's member ID of the planet they are messaging
+        /// </summary>
+        public ulong Member_Id { get; set; }
+
+        /// <summary>
         /// String representation of message
         /// </summary>
         public string Content { get; set; }

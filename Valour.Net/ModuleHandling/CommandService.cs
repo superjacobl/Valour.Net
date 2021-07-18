@@ -28,13 +28,15 @@ namespace Valour.Net.CommandHandling
         }
         public static CommandInfo RunCommandString(string commandname, List<string> args, CommandContext ctx)
         {
+            CommandInfo command;
             foreach (ModuleInfo module in _Modules) {
-                CommandInfo command = module.GetCommand(commandname, args, ctx);
+                command = module.GetCommand(commandname, args, ctx);
                 if (command != null) {
                     return command;
                 }
             }
-            return null;
+            command = _Commands.FirstOrDefault(commandlookup => commandlookup.IsFallback == true && commandlookup.MainAlias == commandname);
+            return command;
         }
     }
 }
