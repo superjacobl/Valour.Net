@@ -49,11 +49,13 @@ namespace Valour.Net
         /// <param name="prefix">The new prefix</param>
         public static void SetPrefix(string prefix)
         {
+            /*
             if (Char.IsLetterOrDigit(prefix.Last()))
             {
                 errorHandler.ReportError(new GenericError($"Attempted to set invalid prefix {prefix}. A prefix must contain a non-alphanumeric character at the end.", ErrorSeverity.WARN));
                 return;
             }
+            */
             BotPrefixList.Clear();
             BotPrefixList.Add(prefix);
         }
@@ -64,11 +66,13 @@ namespace Valour.Net
         /// <param name="prefix">New prefix to be added</param>
         public static void AddPrefix(string prefix)
         {
+            /*
             if (Char.IsLetterOrDigit(prefix.Last()))
             {
                 errorHandler.ReportError(new GenericError($"Attempted to add invalid prefix {prefix}. A prefix must contain a non-alphanumeric character at the end.", ErrorSeverity.WARN));
                 return;
             }
+            */
             if (!BotPrefixList.Contains(prefix))
             {
                 BotPrefixList.Add(prefix);
