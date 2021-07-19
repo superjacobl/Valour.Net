@@ -43,10 +43,11 @@ namespace Valour.Net.CommandHandling.InfoModels
                 }
                 else {
                     string remainder = "";
-                    foreach (string arg in args.GetRange(i, args.Count())){
+                    foreach (string arg in args.GetRange(i, args.Count - i)){
                         remainder += $"{arg} ";
                     }
-                    remainder.Substring(0,remainder.Count()-2);
+                    //remainder.Substring(0,remainder.Count()-2);
+                    remainder = remainder.TrimEnd();
                     objects.Add(remainder);
                     return objects;
                 }
