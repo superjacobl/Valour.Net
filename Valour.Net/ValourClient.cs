@@ -231,7 +231,7 @@ namespace Valour.Net
             await EventService.OnMessage(ctx);
 
             // check to see if message has a command in it
-
+            message.Content = message.Content.Trim();
             string commandprefix = BotPrefixList.FirstOrDefault(prefix => message.Content.Substring(0, prefix.Length) == prefix);
 
             if (commandprefix != null)
@@ -261,7 +261,7 @@ namespace Valour.Net
                     }
                     catch (Exception e)
                     {
-                        errorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL));
+                        errorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL, e));
                     }
                 }
             }
