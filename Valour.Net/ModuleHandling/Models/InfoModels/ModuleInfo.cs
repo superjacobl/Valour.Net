@@ -46,7 +46,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                         string subcommandname = args[0];
                         args.RemoveAt(0);
                         foreach (CommandInfo command in Commands) {
-                            if (command.CheckIfCommand(subcommandname, args, ctx)) {
+                            if (command.CheckIfCommand(subcommandname, args, ctx).Result) {
                                 return command;
                             }
                         }
@@ -56,7 +56,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                     if (GroupName == commandname) {
                         string subcommandname = "";
                         foreach (CommandInfo command in Commands) {
-                            if (command.CheckIfCommand(subcommandname, args, ctx)) {
+                            if (command.CheckIfCommand(subcommandname, args, ctx).Result) {
                                 return command;
                             }
                         }
@@ -66,7 +66,7 @@ namespace Valour.Net.CommandHandling.InfoModels
             }
 
             foreach (CommandInfo command in Commands) {
-                if (command.CheckIfCommand(commandname, args, ctx)) {
+                if (command.CheckIfCommand(commandname, args, ctx).Result) {
                     return command;
                 }
             }

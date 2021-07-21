@@ -2,9 +2,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
+using System.ComponentModel;
+using Newtonsoft.Json;
+using Valour.Net.TypeConverters;
 
 namespace Valour.Net.Models
 {
+    [TypeConverter(typeof(PlanetMemberConverter))]
+    [JsonObject]
     public class PlanetMember
     {
         public ulong Planet_Id { get; set;}
