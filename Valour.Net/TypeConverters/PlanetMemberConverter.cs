@@ -20,7 +20,6 @@ namespace Valour.Net.TypeConverters
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             CommandContext ctx = (context as CommandArgConverterContext).ctx;
-            value = (context as CommandArgConverterContext).Instance;
             object result = null;
             string stringValue = (string)value;
             if (!string.IsNullOrEmpty(stringValue))
@@ -28,10 +27,14 @@ namespace Valour.Net.TypeConverters
                 if (ulong.TryParse(stringValue, out ulong MemberID)) // Input as id
                 {
                     result = Cache.GetPlanetMember(MemberID, ctx.Planet.Id).Result;
+                    if (result == null)
+                    {
+                        result = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Id == MemberID);
+                    }
                 }
                 else //Input as name
                 {
-                    PlanetMember member = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Nickname.ToLower() == value.ToString().ToLower());
+                    PlanetMember member = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Nickname.ToLower() == stringValue.ToLower());
                     if (member != null)
                     {
                         result = member;
