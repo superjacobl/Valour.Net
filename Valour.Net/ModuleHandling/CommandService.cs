@@ -35,7 +35,7 @@ namespace Valour.Net.CommandHandling
                     return command;
                 }
             }
-            command = _Commands.FirstOrDefault(commandlookup => commandlookup.IsFallback == true && commandlookup.MainAlias == commandname);
+            command = _Commands.FirstOrDefault(commandlookup => commandlookup.IsFallback == true && (commandlookup.MainAlias == commandname || commandlookup.Aliases.Contains(commandname)));
             return command;
         }
     }

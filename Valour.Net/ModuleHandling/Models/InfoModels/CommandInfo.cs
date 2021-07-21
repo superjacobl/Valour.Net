@@ -63,7 +63,8 @@ namespace Valour.Net.CommandHandling.InfoModels
         // check if a commandname is this command
 
         public async Task<bool> CheckIfCommand(string name, List<string> args, CommandContext ctx) {
-            if (MainAlias.ToLower() == name || Aliases.Contains(name)) {
+            //Console.WriteLine(Aliases);
+            if (MainAlias.ToLower() == name.ToLower() || Aliases.Contains(name.ToLower())) {
                 if (args.Count != Parameters.Count) {
                     if (Parameters.Count > 0) {
                         if (Parameters.Last().IsRemainder == false) {
