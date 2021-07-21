@@ -24,7 +24,7 @@ namespace Valour.Net.TypeConverters
             {
                 if (ulong.TryParse(stringValue, out ulong UserID)) // Input as id
                 {
-                    result = Cache.GetValourUser(UserID);
+                    result = Cache.GetValourUser(UserID).Result;
                 }
                 else //Input as name
                 {
