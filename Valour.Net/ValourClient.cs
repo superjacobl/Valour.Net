@@ -257,7 +257,7 @@ namespace Valour.Net
                         args.Clear();
                     try
                     {
-                        command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+                        command.Method.Invoke(command.moduleInfo.Instance, (await command.ConvertStringArgs(args, ctx)).ToArray());
                     }
                     catch (Exception e)
                     {

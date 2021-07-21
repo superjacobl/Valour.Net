@@ -17,6 +17,8 @@ namespace Valour.Net
         public static ConcurrentDictionary<ulong, Planet> PlanetCache = new ConcurrentDictionary<ulong, Planet>();
         public static ConcurrentDictionary<ulong, PlanetRole> PlanetRoleCache = new ConcurrentDictionary<ulong, PlanetRole>();
         public static ConcurrentDictionary<ulong, PlanetMember> PlanetMemberCache = new ConcurrentDictionary<ulong, PlanetMember>();
+        public static ConcurrentDictionary<ulong, ValourUser> ValourUserCache = new ConcurrentDictionary<ulong, ValourUser>();
+
 
         public static async Task<PlanetMember> GetPlanetMember(ulong UserId, ulong PlanetId) {
             PlanetMember member = PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == PlanetId && x.User_Id == UserId);
@@ -29,6 +31,21 @@ namespace Valour.Net
                 PlanetMemberCache.TryAdd(member.Id, member);
             }
             return member;
+        }
+
+        public static async Task<ValourUser> GetValourUser(ulong UserId)
+        {
+            ValourUser User = ValourUserCache.Values.FirstOrDefault(x => x.Id == UserId);
+            if (User == null)
+            {
+                User = await ValourClient.GetData<ValourUser>($"https://valour.gg/User/GetUser?id={UserId}");
+                if (User == null)
+                {
+                    return null;
+                }
+                ValourUserCache.TryAdd(User.Id, User);
+            }
+            return User;
         }
 
         public static Channel GetPlanetChannel(ulong ChannelId, ulong PlanetId)
@@ -88,9 +105,11 @@ namespace Valour.Net
                     member.RoleIds = new List<ulong>();
                     member.RoleIds.AddRange(memberinfo.RoleIds);
                     PlanetMemberCache.TryAdd(memberinfo.Member.Id, member);
+                    
                 }
             }
         }
+
 
         public static async Task UpdatePlanetAsync() 
         {
