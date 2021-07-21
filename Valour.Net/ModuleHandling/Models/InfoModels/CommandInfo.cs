@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using Valour.Net.Models;
+using Valour.Net.TypeConverters;
 
 namespace Valour.Net.CommandHandling.InfoModels
 {
@@ -38,56 +39,9 @@ namespace Valour.Net.CommandHandling.InfoModels
             for (int i = 0; i < Parameters.Count; i++)
             {
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
-                if (Parameters[i].Type == typeof(ValourUser))
+                if (Parameters[i].IsRemainder == false)
                 {
-                    if (!ulong.TryParse(args[i], out ulong UserID))
-                    {
-                        ValourUser StringUser = await Cache.GetValourUser(Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Nickname.ToLower() == args[i].ToLower()).User_Id); //Replace to directly get User
-                        if (StringUser == null)
-                        {
-                            ValourClient.errorHandler.ReportError(new("Incorrect input for ValourUser argument", ErrorHandling.ErrorSeverity.FATAL));
-                            StringUser = new();
-                        }
-                        objects.Add(StringUser);
-                    }
-                    else
-                    {
-                        ValourUser User = await Cache.GetValourUser(UserID);
-                        if (User == null)
-                        {
-                            ValourClient.errorHandler.ReportError(new("Incorrect input for ValourUser argument", ErrorHandling.ErrorSeverity.FATAL));
-                            User = new();
-                        }
-                        objects.Add(User);
-                    }
-
-                }
-                else if (Parameters[i].Type == typeof(PlanetMember))
-                {
-                    if (!ulong.TryParse(args[i], out ulong MemberID))
-                    {
-                        PlanetMember StringMember = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Nickname.ToLower() == args[i].ToLower()); //Replace to directly get User
-                        if (StringMember == null)
-                        {
-                            ValourClient.errorHandler.ReportError(new("Incorrect input for ValourUser argument", ErrorHandling.ErrorSeverity.FATAL));
-                            StringMember = new();
-                        }
-                        objects.Add(StringMember);
-                    }
-                    else
-                    {
-                        PlanetMember Member = await Cache.GetPlanetMember(ulong.Parse(args[i]), ctx.Planet.Id);
-                        if (Member == null)
-                        {
-                            ValourClient.errorHandler.ReportError(new("Incorrect input for ValourUser argument", ErrorHandling.ErrorSeverity.FATAL));
-                            Member = new();
-                        }
-                        objects.Add(Member);
-                    }
-                }
-                else if (Parameters[i].IsRemainder == false)
-                {
-                    objects.Add(typeConverter.ConvertFromString(args[i]));
+                    objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(args[i], ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
                 }
                 else
                 {
@@ -128,50 +82,15 @@ namespace Valour.Net.CommandHandling.InfoModels
                 for (int i = 0; i < Parameters.Count; i++)
                 {
                     try {
-                        if (Parameters[i].Type == typeof(ValourUser))
-                        {
-                            if (!ulong.TryParse(args[i], out ulong UserID))
-                            {
-                                ValourUser StringUser = await Cache.GetValourUser(Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Nickname.ToLower() == args[i].ToLower()).User_Id); //Replace to directly get User
-                                if (StringUser == null)
-                                {
-                                    ValourClient.errorHandler.ReportError(new("Incorrect input for ValourUser argument", ErrorHandling.ErrorSeverity.FATAL));
-                                    StringUser = new();
-                                }
-                                object obj = StringUser;
-                            }
-                            else
-                            {
-                                object obj = Cache.GetValourUser(ulong.Parse(args[i]));
-                            }
-                        }  
-                        else if (Parameters[i].Type == typeof(PlanetMember))
-                        {
-                            if (!ulong.TryParse(args[i], out ulong MemberID))
-                            {
-                                PlanetMember StringMember = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Nickname.ToLower() == args[i].ToLower()); //Replace to directly get User
-                                if (StringMember == null)
-                                {
-                                    ValourClient.errorHandler.ReportError(new("Incorrect input for ValourUser argument", ErrorHandling.ErrorSeverity.FATAL));
-                                    StringMember = new();
-                                }
-                                object obj = StringMember;
-                            }
-                            else
-                            {
-                                object obj = Cache.GetPlanetMember(ulong.Parse(args[i]),ctx.Planet.Id);
-                            }
-                        }
-                        else
-                        {
-                            TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
-                            typeConverter.ConvertFromString(args[i]);
-                        }
+                        TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
                         
+                        if (!typeConverter.CanConvertFrom(args[i].GetType()))
+                        {
+                            return false;
+                        }                        
                     }
                     catch (Exception e){
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine(args[i]);
+                        ErrorHandling.ErrorHandler.ReportError(new("Severe error converting argument", ErrorHandling.ErrorSeverity.FATAL, e));
                         return false;
                     }
                 }
