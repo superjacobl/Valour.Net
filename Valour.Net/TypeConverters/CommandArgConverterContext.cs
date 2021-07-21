@@ -10,10 +10,8 @@ namespace Valour.Net.TypeConverters
 {
     class CommandArgConverterContext : ITypeDescriptorContext
     {
-        public CommandArgConverterContext(object instance, CommandContext ctx)
+        public CommandArgConverterContext(CommandContext ctx)
         {
-            Instance = instance;
-            PropertyDescriptor = TypeDescriptor.GetProperties(instance)[0];
             this.ctx = ctx;
         }
 

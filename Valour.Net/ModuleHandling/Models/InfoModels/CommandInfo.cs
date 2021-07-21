@@ -41,7 +41,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
                 if (Parameters[i].IsRemainder == false)
                 {
-                    objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(args[i], ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
+                    objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
                 }
                 else
                 {
