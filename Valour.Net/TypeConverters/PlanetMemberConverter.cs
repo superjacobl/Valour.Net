@@ -27,6 +27,10 @@ namespace Valour.Net.TypeConverters
                 if (ulong.TryParse(stringValue, out ulong MemberID)) // Input as id
                 {
                     result = Cache.GetPlanetMember(MemberID, ctx.Planet.Id).Result;
+                    if (result == null)
+                    {
+                        result = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Id == MemberID);
+                    }
                 }
                 else //Input as name
                 {
