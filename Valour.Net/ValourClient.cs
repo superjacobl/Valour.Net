@@ -33,7 +33,7 @@ namespace Valour.Net
             .WithAutomaticReconnect()
             .Build();
 
-        public static ErrorHandler errorHandler = new();
+        //public static ErrorHandler errorHandler = new();
 
         /// <summary>
         /// This is how to "Login" as the bot. All other requests require a token so therefore this must be run first.
@@ -79,7 +79,7 @@ namespace Valour.Net
             }
             else
             {
-                errorHandler.ReportError(new GenericError($"Attempted to add prefix {prefix} while it is already a recognised prefix.", ErrorSeverity.WARN));
+                ErrorHandler.ReportError(new GenericError($"Attempted to add prefix {prefix} while it is already a recognised prefix.", ErrorSeverity.WARN));
             }
         }
 
@@ -91,7 +91,7 @@ namespace Valour.Net
         {
             if (!BotPrefixList.Remove(prefix))
             {
-                errorHandler.ReportError(new GenericError($"Attempted to remove prefix {prefix} but it was not a recognised prefix.", ErrorSeverity.WARN));
+                ErrorHandler.ReportError(new GenericError($"Attempted to remove prefix {prefix} but it was not a recognised prefix.", ErrorSeverity.WARN));
             }
         }
 
@@ -101,15 +101,19 @@ namespace Valour.Net
 
             if (BotPrefixList.Count < 1)
             {
-                errorHandler.ReportError(new GenericError($"Bot was started with no recognied prefixes. Adding \"/\" as the default prefix.", ErrorSeverity.WARN));
+                ErrorHandler.ReportError(new GenericError($"Bot was started with no recognied prefixes. Adding \"/\" as the default prefix.", ErrorSeverity.WARN));
                 SetPrefix("/");
             }
 
             await RequestTokenAsync(email, password);
+            if (Token == null) //Token returned null meaning valour is unavailable
+                return;
+            
 
             // get botid from token
 
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
+            
 
             await hubConnection.StartAsync();
 
@@ -188,7 +192,7 @@ namespace Valour.Net
 
         public static void RegisterModules()
         {
-            ModuleRegistrar.RegisterAllCommands(errorHandler);
+            ModuleRegistrar.RegisterAllCommands();
         }
 
         public static async Task PostMessage(ulong channelid, ulong planetid, string msg)
@@ -209,7 +213,7 @@ namespace Valour.Net
             ValourResponse<string> valourResponse = await httpresponse.Content.ReadFromJsonAsync<ValourResponse<string>>();
             if (!httpresponse.IsSuccessStatusCode || valourResponse.Success == false)
             {
-                errorHandler.ReportError(new($"Error when attempting to post message : {valourResponse.Message}", ErrorSeverity.FATAL));
+                ErrorHandler.ReportError(new($"Error when attempting to post message : {valourResponse.Message}", ErrorSeverity.FATAL));
             }
         }
 
@@ -257,11 +261,11 @@ namespace Valour.Net
                         args.Clear();
                     try
                     {
-                        command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+                        command.Method.Invoke(command.moduleInfo.Instance, (await command.ConvertStringArgs(args, ctx)).ToArray());
                     }
                     catch (Exception e)
                     {
-                        errorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL, e));
+                        ErrorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL, e));
                     }
                 }
             }
@@ -270,6 +274,11 @@ namespace Valour.Net
         public static async Task<ValourResponse<T>> GetResponse<T>(string url)
         {
             var httpResponse = await httpClient.GetAsync(url);
+            if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
+            {
+                ErrorHandler.ReportError(new GenericError($"Valour is currently unavailable.", ErrorSeverity.FATAL));
+                return default;
+            }
             ValourResponse<T> response = JsonConvert.DeserializeObject<ValourResponse<T>>(await httpResponse.Content.ReadAsStringAsync());
 
             if (!httpResponse.IsSuccessStatusCode)
@@ -285,6 +294,11 @@ namespace Valour.Net
         public static async Task<T> GetData<T>(string url)
         {
             var httpResponse = await httpClient.GetAsync(url);
+            if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
+            {
+                ErrorHandler.ReportError(new GenericError($"Valour is currently unavailable.", ErrorSeverity.FATAL));
+                return default;
+            }
             ValourResponse<T> response = JsonConvert.DeserializeObject<ValourResponse<T>>(await httpResponse.Content.ReadAsStringAsync());
 
             if (!httpResponse.IsSuccessStatusCode)

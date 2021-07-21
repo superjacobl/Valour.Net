@@ -25,7 +25,7 @@ namespace Valour.Net.CommandHandling
         /// <summary>
         /// Finds all classes that inherit from CommandModuleBase and then finds all methods which have a Command attribute
         /// </summary>
-        public static void RegisterAllCommands(ErrorHandler errorHandler)
+        public static void RegisterAllCommands()
         {
             //errorHandler.ReportError(new GenericError("", ErrorSeverity.FATAL));
 
