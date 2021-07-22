@@ -38,7 +38,7 @@ namespace Valour.Net.CommandHandling.InfoModels
             // check if this a group module
 
             if (GroupName != "") {
-                if (args.Count() > 0) {
+                if (args.Count > 0) {
 
                     // args[0] should be the command prefix
 

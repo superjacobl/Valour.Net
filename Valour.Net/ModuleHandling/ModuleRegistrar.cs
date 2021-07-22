@@ -41,15 +41,15 @@ namespace Valour.Net.CommandHandling
             foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
             {
                 ModuleBuilder builder = new();
-
                 //Check for command group attribute
                 GroupAttribute GroupAttr = (GroupAttribute)commandModule.GetCustomAttribute(typeof(GroupAttribute));
-                builder.BuildModule(commandModule);
                 if (GroupAttr != null) {
                     builder.Module.GroupName = GroupAttr.Prefix;
                 }
-                CommandService.RegisterModule(builder.Module);
-                builder.Register();
+
+                builder.BuildModule(commandModule);
+                //CommandService.RegisterModule(builder.Module);
+                //builder.Register();
 
                 DontAutoLoadAttribute autoLoadAttribute = (DontAutoLoadAttribute)commandModule.GetCustomAttribute(typeof(DontAutoLoadAttribute));               
                 if (autoLoadAttribute != null)
@@ -58,7 +58,7 @@ namespace Valour.Net.CommandHandling
                     continue;
                 }
                 CommandService.RegisterModule(builder.Module);
-                builder.Register();
+                //builder.Register();
 
 
                 /*
