@@ -116,10 +116,6 @@ namespace Valour.Net
 
             await hubConnection.StartAsync();
 
-            //Create task to register modules while cache is being loaded
-            Console.WriteLine("Registering Modules");
-            Task.Run(() => RegisterModules());
-
             // load cache from Valour
             Console.WriteLine("Loading up Cache");
 
@@ -147,6 +143,10 @@ namespace Valour.Net
                     member.Roles.Add(Cache.PlanetCache.Values.First(x => x.Id == member.Planet_Id).Roles.First(x => x.Id == roleid));
                 }
             }
+
+            //Register command modules
+            Console.WriteLine("Registering Modules");
+            RegisterModules();
 
             // set up signalr stuff
 
