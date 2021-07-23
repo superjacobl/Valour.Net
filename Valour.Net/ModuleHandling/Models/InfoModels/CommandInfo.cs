@@ -33,7 +33,7 @@ namespace Valour.Net.CommandHandling.InfoModels
         }
         */
 
-        public async Task<List<object>> ConvertStringArgs(List<string> args, CommandContext ctx) {
+        public List<object> ConvertStringArgs(List<string> args, CommandContext ctx) {
             List<object> objects = new List<object>();
             objects.Add(ctx);
             for (int i = 0; i < Parameters.Count; i++)
