@@ -169,7 +169,6 @@ namespace Valour.Net
 
             hubConnection.On<string>("Relay", OnRelay);
 
-
             Console.WriteLine("\n-----Ready----- ");
         }
 
@@ -248,7 +247,7 @@ namespace Valour.Net
                     }
                     catch (Exception e)
                     {
-                        ErrorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL, e));
+                        ErrorHandler.ReportError(new GenericError($"Error attempting to execute command: {e.Message}", ErrorSeverity.FATAL, e));
                     }
                 }
             }
