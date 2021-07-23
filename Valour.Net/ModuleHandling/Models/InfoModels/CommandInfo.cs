@@ -101,7 +101,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                 if (OnlyRoles != null) {
                     foreach (string RoleName in OnlyRoles) {
                         if (ctx.Member.Roles.Any(x => x.Name == RoleName) != true) {
-                            EventService.UserLacksTheRolesToUseACommand(this, ctx);
+                            await EventService.UserLacksTheRolesToUseACommand(this, ctx);
                             return false;
                         }
                     }

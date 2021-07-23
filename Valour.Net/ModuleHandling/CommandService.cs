@@ -26,11 +26,11 @@ namespace Valour.Net.CommandHandling
             //Error checking code needed
             _Modules.Add(module);
         }
-        public static CommandInfo RunCommandString(string commandname, List<string> args, CommandContext ctx)
+        public static async Task<CommandInfo> RunCommandString(string commandname, List<string> args, CommandContext ctx)
         {
             CommandInfo command;
             foreach (ModuleInfo module in _Modules) {
-                command = module.GetCommand(commandname, args, ctx);
+                command = await module.GetCommand(commandname, args, ctx);
                 if (command != null) {
                     return command;
                 }

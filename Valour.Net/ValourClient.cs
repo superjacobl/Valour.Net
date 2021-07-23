@@ -253,7 +253,7 @@ namespace Valour.Net
                 string commandname = args[0].ToLower();
                 args.RemoveAt(0);
 
-                CommandInfo command = CommandService.RunCommandString(commandname, args, ctx);
+                CommandInfo command = await CommandService.RunCommandString(commandname, args, ctx);
 
                 if (command != null)
                 {
