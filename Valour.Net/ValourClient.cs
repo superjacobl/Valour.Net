@@ -110,16 +110,17 @@ namespace Valour.Net
                 return;
             
 
-            // get botid from token
-
+            // Get botid from token
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
             
 
             await hubConnection.StartAsync();
 
-            // load cache from Valour
+            //Create task to register modules while cache is being loaded
+            Console.WriteLine("Registering Modules");
+            Task.Run(() => RegisterModules());
 
-            //int returnline = Console.GetCursorPosition().Top;
+            // load cache from Valour
             Console.WriteLine("Loading up Cache");
 
             await Cache.UpdatePlanetAsync();
@@ -147,9 +148,6 @@ namespace Valour.Net
                 }
             }
 
-            //Console.SetCursorPosition(0, returnline);
-            //Console.WriteLine("Loading up Cache - Done!");
-
             // set up signalr stuff
 
             //returnline = Console.GetCursorPosition().Top;
@@ -170,21 +168,6 @@ namespace Valour.Net
             // set up events
 
             hubConnection.On<string>("Relay", OnRelay);
-
-            //Console.SetCursorPosition(0, returnline);
-            //Console.WriteLine("Connecting to Valour - Done!");
-
-
-            //Register Modules
-
-            //returnline = Console.GetCursorPosition().Top;
-            Console.WriteLine("Registering Modules");
-
-            RegisterModules();
-
-            //Console.SetCursorPosition(0, returnline);
-            //Console.WriteLine("Registering Modules - Done!");
-
 
 
             Console.WriteLine("\n-----Ready----- ");

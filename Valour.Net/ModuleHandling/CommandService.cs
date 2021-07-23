@@ -12,9 +12,6 @@ namespace Valour.Net.CommandHandling
         public static List<ModuleInfo> _Modules { get; set; } = new List<ModuleInfo>();
         public static List<CommandInfo> _Commands { get; set; } = new List<CommandInfo>();
 
-
-        //private Dictionary<CommandInfo, ModuleInfo> CommandModuleMap { get; set; }
-
         public static void RegisterCommand(CommandInfo command)
         {
             //Error checking code needed
