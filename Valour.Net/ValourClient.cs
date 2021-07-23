@@ -110,16 +110,13 @@ namespace Valour.Net
                 return;
             
 
-            // get botid from token
-
+            // Get botid from token
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
             
 
             await hubConnection.StartAsync();
 
             // load cache from Valour
-
-            //int returnline = Console.GetCursorPosition().Top;
             Console.WriteLine("Loading up Cache");
 
             await Cache.UpdatePlanetAsync();
@@ -147,8 +144,9 @@ namespace Valour.Net
                 }
             }
 
-            //Console.SetCursorPosition(0, returnline);
-            //Console.WriteLine("Loading up Cache - Done!");
+            //Register command modules
+            Console.WriteLine("Registering Modules");
+            RegisterModules();
 
             // set up signalr stuff
 
@@ -170,22 +168,6 @@ namespace Valour.Net
             // set up events
 
             hubConnection.On<string>("Relay", OnRelay);
-
-            //Console.SetCursorPosition(0, returnline);
-            //Console.WriteLine("Connecting to Valour - Done!");
-
-
-            //Register Modules
-
-            //returnline = Console.GetCursorPosition().Top;
-            Console.WriteLine("Registering Modules");
-
-            RegisterModules();
-
-            //Console.SetCursorPosition(0, returnline);
-            //Console.WriteLine("Registering Modules - Done!");
-
-
 
             Console.WriteLine("\n-----Ready----- ");
         }
@@ -253,7 +235,7 @@ namespace Valour.Net
                 string commandname = args[0].ToLower();
                 args.RemoveAt(0);
 
-                CommandInfo command = CommandService.RunCommandString(commandname, args, ctx);
+                CommandInfo command = await CommandService.RunCommandString(commandname, args, ctx);
 
                 if (command != null)
                 {
@@ -261,11 +243,11 @@ namespace Valour.Net
                         args.Clear();
                     try
                     {
-                        command.Method.Invoke(command.moduleInfo.Instance, (await command.ConvertStringArgs(args, ctx)).ToArray());
+                        command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
                     }
                     catch (Exception e)
                     {
-                        ErrorHandler.ReportError(new GenericError(e.Message, ErrorSeverity.FATAL, e));
+                        ErrorHandler.ReportError(new GenericError($"Error attempting to execute command: {e.Message}", ErrorSeverity.FATAL, e));
                     }
                 }
             }

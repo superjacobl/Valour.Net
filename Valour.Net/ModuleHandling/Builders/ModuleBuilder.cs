@@ -23,9 +23,6 @@ namespace Valour.Net.CommandHandling.Builders
         /// <param name="module">Class type to convert</param>
         public void BuildModule(Type module)
         {
-
-            
-            
             ConstructorInfo constructor = module.GetConstructor(Type.EmptyTypes);
             CommandModuleBase moduleInstance  = (CommandModuleBase)constructor.Invoke(Array.Empty<object>());
             Module.Instance = moduleInstance;
@@ -47,15 +44,6 @@ namespace Valour.Net.CommandHandling.Builders
                 EventService._Events.Add(eventInfo);
             }
             
-        }
-
-
-        /// <summary>
-        /// Registers module to provided command service
-        /// </summary>
-        public void Register()
-        {
-
         }
     }
 }
