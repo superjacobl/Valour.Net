@@ -16,7 +16,7 @@ namespace Valour.Net.TypeConverters
             return sourceType == typeof(string) || sourceType == typeof(ulong)|| base.CanConvertFrom(context, sourceType);
         }
 
-        public override async Task<object> ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             object result = null;
             string stringValue = (string)value;
@@ -24,14 +24,14 @@ namespace Valour.Net.TypeConverters
             {
                 if (ulong.TryParse(stringValue, out ulong UserID)) // Input as id
                 {
-                    result = await Cache.GetValourUser(UserID);
+                    result = Cache.GetValourUser(UserID).Result;
                 }
                 else //Input as name
                 {
                     PlanetMember member = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Nickname == stringValue);
                     if (member != null)
                     {
-                        result = await Cache.GetValourUser(member.User_Id);
+                        result = Cache.GetValourUser(member.User_Id).Result;
                     }
                 }
             }
