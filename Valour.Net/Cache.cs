@@ -89,35 +89,36 @@ namespace Valour.Net
 
         public static async Task UpdateChannelsFromPlanetAsync(ulong PlanetId)
         {
-            foreach (Channel channel in await ValourClient.GetData<List<Channel>>($"https://valour.gg/Channel/GetPlanetChannels?planet_id={PlanetId}&token={ValourClient.Token}")) {
-                if (ChannelCache.ContainsKey(channel.Id) == false) {
-                    ChannelCache.TryAdd(channel.Id, channel);
-                }
-            }
+            Parallel.ForEach(await ValourClient.GetData<List<Channel>>($"https://valour.gg/Channel/GetPlanetChannels?planet_id={PlanetId}&token={ValourClient.Token}"), channel =>
+            {
+                ChannelCache.TryAdd(channel.Id, channel);
+            }); 
         }
 
         public static async Task UpdateMembersFromPlanetAsync(ulong PlanetId)
         {
             Planet planet = await GetPlanet(PlanetId);
-            foreach (PlanetMemberInfo memberinfo in await ValourClient.GetData<List<PlanetMemberInfo>>($"https://valour.gg/Planet/GetPlanetMemberInfo?planet_id={PlanetId}&token={ValourClient.Token}")) {
-                if (PlanetMemberCache.ContainsKey(memberinfo.Member.Id) == false) {
+            Parallel.ForEach(await ValourClient.GetData<List<PlanetMemberInfo>>($"https://valour.gg/Planet/GetPlanetMemberInfo?planet_id={PlanetId}&token={ValourClient.Token}"), memberinfo => 
+            {
+                if (PlanetMemberCache.ContainsKey(memberinfo.Member.Id) == false)
+                {
                     PlanetMember member = memberinfo.Member;
                     member.RoleIds = new List<ulong>();
                     member.RoleIds.AddRange(memberinfo.RoleIds);
                     PlanetMemberCache.TryAdd(memberinfo.Member.Id, member);
-                    
+                    ValourUserCache.TryAdd(memberinfo.Member.User_Id, memberinfo.User);
                 }
-            }
+            });
         }
 
 
         public static async Task UpdatePlanetAsync() 
         {
-            foreach (Planet planet in await ValourClient.GetData<List<Planet>>($"https://valour.gg/Planet/GetPlanetMembership?user_id={ValourClient.BotId}&token={ValourClient.Token}")) {
-                if (PlanetCache.ContainsKey(planet.Id) == false) {
-                    PlanetCache.TryAdd(planet.Id, planet);
-                }
-            }
+            Parallel.ForEach(await ValourClient.GetData<List<Planet>>($"https://valour.gg/Planet/GetPlanetMembership?user_id={ValourClient.BotId}&token={ValourClient.Token}"), planet =>
+            {
+                PlanetCache.TryAdd(planet.Id, planet);
+            });
+
         }
 
     }
