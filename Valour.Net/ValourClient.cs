@@ -119,6 +119,7 @@ namespace Valour.Net
             // load cache from Valour
             Console.WriteLine("Loading up Cache");
 
+
             await Cache.UpdatePlanetAsync();
 
             List<Task> tasks = new List<Task>();
@@ -131,6 +132,7 @@ namespace Valour.Net
             }
 
             await Task.WhenAll(tasks);
+
 
             // Sets every member's RoleNames for speed
 
