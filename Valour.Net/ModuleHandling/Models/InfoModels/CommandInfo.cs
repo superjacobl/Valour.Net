@@ -33,7 +33,7 @@ namespace Valour.Net.CommandHandling.InfoModels
         }
         */
 
-        public async Task<List<object>> ConvertStringArgs(List<string> args, CommandContext ctx) {
+        public List<object> ConvertStringArgs(List<string> args, CommandContext ctx) {
             List<object> objects = new List<object>();
             objects.Add(ctx);
             for (int i = 0; i < Parameters.Count; i++)
@@ -63,7 +63,8 @@ namespace Valour.Net.CommandHandling.InfoModels
         // check if a commandname is this command
 
         public async Task<bool> CheckIfCommand(string name, List<string> args, CommandContext ctx) {
-            if (MainAlias.ToLower() == name || Aliases.Contains(name)) {
+            //Console.WriteLine(Aliases);
+            if (MainAlias.ToLower() == name.ToLower() || Aliases.Contains(name.ToLower())) {
                 if (args.Count != Parameters.Count) {
                     if (Parameters.Count > 0) {
                         if (Parameters.Last().IsRemainder == false) {
@@ -100,7 +101,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                 if (OnlyRoles != null) {
                     foreach (string RoleName in OnlyRoles) {
                         if (ctx.Member.Roles.Any(x => x.Name == RoleName) != true) {
-                            EventService.UserLacksTheRolesToUseACommand(this, ctx);
+                            await EventService.UserLacksTheRolesToUseACommand(this, ctx);
                             return false;
                         }
                     }

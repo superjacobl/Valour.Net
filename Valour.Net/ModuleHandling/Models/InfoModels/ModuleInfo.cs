@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Valour.Net.ErrorHandling;
 
 namespace Valour.Net.CommandHandling.InfoModels
@@ -32,13 +33,13 @@ namespace Valour.Net.CommandHandling.InfoModels
             Commands.Add(command);
         }
 
-        public CommandInfo GetCommand(string commandname, List<string> args, CommandContext ctx)
+        public async Task<CommandInfo> GetCommand(string commandname, List<string> args, CommandContext ctx)
         {
 
             // check if this a group module
 
             if (GroupName != "") {
-                if (args.Count() > 0) {
+                if (args.Count > 0) {
 
                     // args[0] should be the command prefix
 
@@ -46,7 +47,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                         string subcommandname = args[0];
                         args.RemoveAt(0);
                         foreach (CommandInfo command in Commands) {
-                            if (command.CheckIfCommand(subcommandname, args, ctx).Result) {
+                            if (await command.CheckIfCommand(subcommandname, args, ctx)) {
                                 return command;
                             }
                         }
@@ -56,7 +57,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                     if (GroupName == commandname) {
                         string subcommandname = "";
                         foreach (CommandInfo command in Commands) {
-                            if (command.CheckIfCommand(subcommandname, args, ctx).Result) {
+                            if (await command.CheckIfCommand(subcommandname, args, ctx)) {
                                 return command;
                             }
                         }
@@ -66,7 +67,7 @@ namespace Valour.Net.CommandHandling.InfoModels
             }
 
             foreach (CommandInfo command in Commands) {
-                if (command.CheckIfCommand(commandname, args, ctx).Result) {
+                if (await command.CheckIfCommand(commandname, args, ctx)) {
                     return command;
                 }
             }
