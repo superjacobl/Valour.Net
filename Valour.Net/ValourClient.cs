@@ -39,6 +39,7 @@ namespace Valour.Net
                 logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Error);
             }).Build();
 
+
         //public static ErrorHandler errorHandler = new();
 
         /// <summary>
@@ -120,6 +121,7 @@ namespace Valour.Net
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
 
 
+            hubConnection.Reconnected += HubConnection_Reconnected;
             await hubConnection.StartAsync();
 
             // load cache from Valour
@@ -182,6 +184,20 @@ namespace Valour.Net
             Console.WriteLine("\n-----Ready----- ");
         }
 
+        private static async Task HubConnection_Reconnected(string arg)
+        {
+            hubConnection.On<string>("Relay", OnRelay);
+
+            foreach (Planet planet in Cache.PlanetCache.Values)
+            {
+                await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false);
+                foreach (Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id))
+                {
+                    await hubConnection.SendAsync("JoinChannel", channel.Id, Token).ConfigureAwait(false);
+                }
+            }
+        }
+
         public static void RegisterModules()
         {
             ModuleRegistrar.RegisterAllCommands();
@@ -210,10 +226,6 @@ namespace Valour.Net
             }
             
        
-            
-
-            //string json = JsonConvert.SerializeObject(message);
-
             HttpResponseMessage httpresponse = await httpClient.PostAsJsonAsync<PlanetMessage>($"https://valour.gg/Channel/PostMessage?token={Token}", message);
             ValourResponse<string> valourResponse = await httpresponse.Content.ReadFromJsonAsync<ValourResponse<string>>();
             if (!httpresponse.IsSuccessStatusCode || valourResponse.Success == false)
@@ -228,6 +240,7 @@ namespace Valour.Net
         }
 
 
+
         public static async Task OnRelay(string data)
         {
             PlanetMessage message = JsonConvert.DeserializeObject<PlanetMessage>(data);
@@ -237,8 +250,7 @@ namespace Valour.Net
 
             message.Channel = await message.GetChannelAsync();
             message.Planet = await message.GetPlanetAsync();
-            CommandContext ctx = new CommandContext();
-            await ctx.Set(message);
+            CommandContext ctx = new CommandContext(message);
             if (OnMessage != null)
             {
                 await OnMessage.Invoke(message);
@@ -280,7 +292,7 @@ namespace Valour.Net
                     if (command.IsFallback)
                         args.Clear();
                     try
-                    {
+                    {              
                         command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
                     }
                     catch (Exception e)
