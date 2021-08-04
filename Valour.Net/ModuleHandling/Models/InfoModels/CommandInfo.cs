@@ -35,7 +35,7 @@ namespace Valour.Net.CommandHandling.InfoModels
 
         public List<object> ConvertStringArgs(List<string> args, CommandContext ctx) {
             List<object> objects = new List<object>();
-            //objects.Add(ctx);
+            objects.Add(ctx);
             for (int i = 0; i < Parameters.Count; i++)
             {
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
