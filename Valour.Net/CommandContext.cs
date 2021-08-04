@@ -20,7 +20,7 @@ namespace Valour.Net.CommandHandling
 
         public CommandContext() { }
 
-        async Task Set(PlanetMessage msg)
+        public async Task Set(PlanetMessage msg)
         {
             Planet = await Cache.GetPlanet(msg.Planet_Id);
             Channel = await Cache.GetPlanetChannelAsync(msg.Channel_Id, msg.Planet_Id);

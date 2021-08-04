@@ -250,7 +250,8 @@ namespace Valour.Net
 
             message.Channel = await message.GetChannelAsync();
             message.Planet = await message.GetPlanetAsync();
-            CommandContext ctx = new CommandContext(message);
+            CommandContext ctx = new CommandContext();
+            await ctx.Set(message);
             if (OnMessage != null)
             {
                 await OnMessage.Invoke(message);
