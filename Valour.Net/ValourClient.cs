@@ -121,7 +121,7 @@ namespace Valour.Net
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
 
 
-            hubConnection.Reconnected += HubConnection_Reconnected;
+            //hubConnection.Reconnected += HubConnection_Reconnected;
             await hubConnection.StartAsync();
 
             // load cache from Valour
@@ -184,6 +184,7 @@ namespace Valour.Net
             Console.WriteLine("\n-----Ready----- ");
         }
 
+        /* This needs to be fixed so it reconnects correctly
         private static async Task HubConnection_Reconnected(string arg)
         {
             hubConnection.On<string>("Relay", OnRelay);
@@ -197,6 +198,7 @@ namespace Valour.Net
                 }
             }
         }
+        */
 
         public static void RegisterModules()
         {
