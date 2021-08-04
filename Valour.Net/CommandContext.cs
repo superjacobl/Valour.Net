@@ -18,10 +18,7 @@ namespace Valour.Net.CommandHandling
         public PlanetMember Member { get; set;}
         public PlanetMessage Message { get; set;}
 
-        public CommandContext(PlanetMessage msg)
-        {
-            Set(msg).Wait();
-        }
+        public CommandContext() { }
 
         async Task Set(PlanetMessage msg)
         {
