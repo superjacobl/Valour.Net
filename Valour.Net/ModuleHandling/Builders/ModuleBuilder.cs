@@ -43,7 +43,18 @@ namespace Valour.Net.CommandHandling.Builders
                 eventInfo.moduleInfo = Module;
                 EventService._Events.Add(eventInfo);
             }
-            
+
+            foreach (MethodInfo method in module.GetMethods().Where(m => m.GetCustomAttributes(typeof(InteractionAttribute), false).Length > 0))
+            {
+                InteractionEventInfo eventInfo = new();
+                InteractionAttribute EventAttr = (InteractionAttribute)method.GetCustomAttribute(typeof(InteractionAttribute));
+                eventInfo.InteractionName = EventAttr.InteractionName;
+                eventInfo.InteractionID = (EventAttr.InteractionID ?? null);
+                eventInfo.Method = method;
+                eventInfo.moduleInfo = Module;
+                EventService._InteractionEvents.Add(eventInfo);
+            }
+
         }
     }
 }

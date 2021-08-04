@@ -43,7 +43,12 @@ namespace Valour.Net.Models
 
         public async Task SendMessageAsync(string content)
         {
-            await ValourClient.PostMessage(Id, Planet_Id, content);
+            await ValourClient.PostMessage(Id, Planet_Id, content, null);
+        }
+
+        public async Task SendMessageAsync(ClientEmbed embed)
+        {
+            await ValourClient.PostMessage(Id, Planet_Id, "", embed);
         }
 
     }
