@@ -12,8 +12,6 @@ namespace Valour.Net.Global
     /// </summary>
     public interface IModuleBase
     {
-        public Task ReplyAsync(string message);
 
-        public Task ReplyWithMessagesAsync(int delay, List<string> data);
     }
 }
