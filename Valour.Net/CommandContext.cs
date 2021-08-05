@@ -18,6 +18,8 @@ namespace Valour.Net.CommandHandling
         public PlanetMember Member { get; set;}
         public PlanetMessage Message { get; set;}
 
+        public CommandContext() { }
+
         public async Task Set(PlanetMessage msg)
         {
             Planet = await Cache.GetPlanet(msg.Planet_Id);
@@ -26,14 +28,26 @@ namespace Valour.Net.CommandHandling
             Message = msg;
         }
 
-        public async Task ReplyAsync(string content)
+        public async Task SetFromImteractionEvent(InteractionEvent IEvent)
         {
-            await ValourClient.PostMessage(Channel.Id, Planet.Id, content);
+            Planet = await Cache.GetPlanet(IEvent.Planet_Id);
+            Channel = await Cache.GetPlanetChannelAsync(IEvent.Channel_Id, IEvent.Planet_Id);
+            Member = Cache.PlanetMemberCache.First(x => x.Key == IEvent.Author_Member_Id).Value;
+            Message = null;
         }
 
+        public async Task ReplyAsync(string content)
+        {
+            await ValourClient.PostMessage(Channel.Id, Planet.Id, content, null);
+        }
+
+        public async Task ReplyAsync(ClientEmbed embed)
+        {
+            await ValourClient.PostMessage(Channel.Id, Planet.Id, "", embed);
+        }
         public async Task ReplyWithMessagesAsync(int delay, List<string> data) {
             foreach (string content in data) {
-                await ValourClient.PostMessage(Channel.Id, Planet.Id, content);
+                await ValourClient.PostMessage(Channel.Id, Planet.Id, content, null);
                 await Task.Delay(delay);
             }
         }

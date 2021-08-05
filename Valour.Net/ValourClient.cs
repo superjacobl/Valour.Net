@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Numerics;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.InfoModels;
@@ -31,7 +33,12 @@ namespace Valour.Net
         public static HubConnection hubConnection = new HubConnectionBuilder()
             .WithUrl("https://valour.gg/planethub")
             .WithAutomaticReconnect()
-            .Build();
+            .ConfigureLogging(logging => {
+                // Set the log level of signalr stuffs
+                logging.AddConsole();
+                logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Error);
+            }).Build();
+
 
         //public static ErrorHandler errorHandler = new();
 
@@ -108,12 +115,13 @@ namespace Valour.Net
             await RequestTokenAsync(email, password);
             if (Token == null) //Token returned null meaning valour is unavailable
                 return;
-            
+
 
             // Get botid from token
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
-            
 
+
+            //hubConnection.Reconnected += HubConnection_Reconnected;
             await hubConnection.StartAsync();
 
             // load cache from Valour
@@ -129,6 +137,7 @@ namespace Valour.Net
                 tasks.Add(Task.Run(async () => await Cache.UpdateMembersFromPlanetAsync(planet.Id)));
                 tasks.Add(Task.Run(async () => await Cache.UpdateChannelsFromPlanetAsync(planet.Id)));
                 tasks.Add(Task.Run(async () => await Cache.UpdatePlanetRoles(planet.Id)));
+                tasks.Add(Task.Run(async () => await hubConnection.SendAsync("JoinInteractionGroup", planet.Id, Token)));
             }
 
             await Task.WhenAll(tasks);
@@ -170,16 +179,33 @@ namespace Valour.Net
             // set up events
 
             hubConnection.On<string>("Relay", OnRelay);
+            hubConnection.On<string>("InteractionEvent", OnInteractionEvent);
 
             Console.WriteLine("\n-----Ready----- ");
         }
+
+        /* This needs to be fixed so it reconnects correctly
+        private static async Task HubConnection_Reconnected(string arg)
+        {
+            hubConnection.On<string>("Relay", OnRelay);
+
+            foreach (Planet planet in Cache.PlanetCache.Values)
+            {
+                await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false);
+                foreach (Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id))
+                {
+                    await hubConnection.SendAsync("JoinChannel", channel.Id, Token).ConfigureAwait(false);
+                }
+            }
+        }
+        */
 
         public static void RegisterModules()
         {
             ModuleRegistrar.RegisterAllCommands();
         }
-
-        public static async Task PostMessage(ulong channelid, ulong planetid, string msg)
+        
+        public static async Task PostMessage(ulong channelid, ulong planetid, string msg, ClientEmbed Embed)
         {
             PlanetMessage message = new PlanetMessage()
             {
@@ -191,8 +217,17 @@ namespace Valour.Net
                 Planet_Id = planetid
             };
 
-            //string json = Newtonsoft.Json.JsonConvert.SerializeObject(message);
 
+            if (Embed != null)
+            {
+                if (Embed.Items.Count != 0)
+                {
+                    Embed.Pages.Insert(0, Embed.Items);
+                }
+                message.Embed_Data = JsonConvert.SerializeObject(Embed, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            }
+            
+       
             HttpResponseMessage httpresponse = await httpClient.PostAsJsonAsync<PlanetMessage>($"https://valour.gg/Channel/PostMessage?token={Token}", message);
             ValourResponse<string> valourResponse = await httpresponse.Content.ReadFromJsonAsync<ValourResponse<string>>();
             if (!httpresponse.IsSuccessStatusCode || valourResponse.Success == false)
@@ -201,10 +236,18 @@ namespace Valour.Net
             }
         }
 
+        public static async Task OnInteractionEvent(string Data)
+        {
+            await EventService.OnInteraction(JsonConvert.DeserializeObject<InteractionEvent>(Data));
+        }
+
+
+
         public static async Task OnRelay(string data)
         {
             PlanetMessage message = JsonConvert.DeserializeObject<PlanetMessage>(data);
             message.Author = await message.GetAuthorAsync();
+
             if ((message.Author.IsBot && DisallowBotRespond) || (message.Author.User_Id == BotId && DisallowSelfRespond)) return;
 
             message.Channel = await message.GetChannelAsync();
@@ -220,7 +263,15 @@ namespace Valour.Net
 
             // check to see if message has a command in it
             message.Content = message.Content.Trim();
-            string commandprefix = BotPrefixList.FirstOrDefault(prefix => message.Content.Substring(0, prefix.Length) == prefix);
+            string commandprefix = "";
+            try
+            {
+                commandprefix = BotPrefixList.FirstOrDefault(prefix => message.Content.Substring(0, prefix.Length) == prefix);
+            }
+            catch (Exception)
+            {
+                return; //Message had no content causing the substring to fail. Message will be ignored
+            }
 
             if (commandprefix != null)
             {
@@ -244,7 +295,7 @@ namespace Valour.Net
                     if (command.IsFallback)
                         args.Clear();
                     try
-                    {
+                    {              
                         command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
                     }
                     catch (Exception e)

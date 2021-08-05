@@ -13,13 +13,9 @@ namespace Valour.Net.Models
         public ulong Id { get; set; }
 
         /// <summary>
-        /// The user's ID
+        /// The user's IDs
         /// </summary>
         public ulong Author_Id { get; set; }
-
-        /// <summary>
-        /// The user's member ID of the planet they are messaging
-        /// </summary>
         public ulong Member_Id { get; set; }
 
         /// <summary>
@@ -46,6 +42,7 @@ namespace Valour.Net.Models
         public Channel Channel;
         public PlanetMember Author;
         public Planet Planet;
+        public string Embed_Data { get; set; }
         // Valour will add mentions soon
         public List<PlanetMember> MentionedMembers = new List<PlanetMember>();
 
@@ -63,5 +60,7 @@ namespace Valour.Net.Models
         {
             return await Cache.GetPlanet(Planet_Id);
         }
+
+
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.Global;
+using Valour.Net.Models;
 
 namespace Valour.Net.CommandHandling
 {
@@ -12,5 +13,6 @@ namespace Valour.Net.CommandHandling
     /// </summary>
     public abstract class CommandModuleBase : IModuleBase
     {
+       
     }
 }
