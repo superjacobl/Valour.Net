@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.2.1.1</Version>
+    <Version>0.4.0</Version>
     <Company />
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
@@ -14,7 +14,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Valour Valour.Net API Wrapper</PackageTags>
     <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
-    <PackageReleaseNotes>2.1.1: Fixed Postmessage, added fallback attribute and BotPrefixList instead of an array</PackageReleaseNotes>
+    <PackageReleaseNotes>4.0: Added interactive embeds and signalr logging</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
