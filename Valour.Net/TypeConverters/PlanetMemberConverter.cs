@@ -32,6 +32,22 @@ namespace Valour.Net.TypeConverters
                         result = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Id == MemberID);
                     }
                 }
+                else if (stringValue.Substring(0,4) == "«@m-") //input as ping 
+                {
+                    if (ulong.TryParse(stringValue.Substring(4, 15), out MemberID))
+                    {
+                        result = Cache.GetPlanetMember(MemberID, ctx.Planet.Id).Result;
+                        if (result == null)
+                        {
+                            result = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Id == MemberID);
+                        }
+                    }
+                    else
+                    {
+                        result = null;
+                    }
+
+                }
                 else //Input as name
                 {
                     PlanetMember member = Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Nickname.ToLower() == stringValue.ToLower());
