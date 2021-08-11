@@ -121,8 +121,8 @@ namespace Valour.Net
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
 
 
-            //hubConnection.Reconnected += HubConnection_Reconnected;
             await hubConnection.StartAsync();
+            hubConnection.Reconnected += HubConnection_Reconnected; 
 
             // load cache from Valour
             Console.WriteLine("Loading up Cache");
@@ -184,21 +184,26 @@ namespace Valour.Net
             Console.WriteLine("\n-----Ready----- ");
         }
 
-        /* This needs to be fixed so it reconnects correctly
+        
         private static async Task HubConnection_Reconnected(string arg)
         {
-            hubConnection.On<string>("Relay", OnRelay);
 
+            //Console.WriteLine($"Hub Reconnected Arg : {arg}");
             foreach (Planet planet in Cache.PlanetCache.Values)
             {
-                await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false);
+                Task.Run(async () => await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false));
+                Task.Run(async () => await hubConnection.SendAsync("JoinInteractionGroup", planet.Id, Token).ConfigureAwait(false));
+
                 foreach (Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id))
                 {
                     await hubConnection.SendAsync("JoinChannel", channel.Id, Token).ConfigureAwait(false);
                 }
             }
+
+            //hubConnection.On<string>("Relay", OnRelay);
+            //hubConnection.On<string>("InteractionEvent", OnInteractionEvent);
         }
-        */
+
 
         public static void RegisterModules()
         {
