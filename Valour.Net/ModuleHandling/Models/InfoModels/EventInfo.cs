@@ -21,17 +21,5 @@ namespace Valour.Net.CommandHandling.InfoModels
         }
     }
 
-    public class InteractionEventInfo
-    {
-        public string InteractionName { get; set; }
-        public string InteractionID { get; set; }
-
-        public ModuleInfo moduleInfo { get; set; }
-        public MethodInfo Method { get; set; }
-
-        public InteractionEventInfo()
-        {
-
-        }
-    }
+    
 }
