@@ -79,8 +79,7 @@ namespace Valour.Net.CommandHandling.Builders
                     }
                 }
             }
-            
-            
+
             moduleInfo.AddCommand(Command);
             CommandService.RegisterCommand(Command);
             
