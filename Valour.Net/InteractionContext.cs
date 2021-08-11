@@ -11,21 +11,21 @@ using Valour.Net;
 
 namespace Valour.Net.CommandHandling
 {
-    public class CommandContext
+    public class InteractionContext
     {
         public Planet Planet { get; set;}
         public Channel Channel { get; set;}
         public PlanetMember Member { get; set;}
         public PlanetMessage Message { get; set;}
 
-        public CommandContext() { }
+        public InteractionContext() { }
 
-        public async Task Set(PlanetMessage msg)
+        public async Task SetFromImteractionEvent(InteractionEvent IEvent)
         {
-            Planet = await Cache.GetPlanet(msg.Planet_Id);
-            Channel = await Cache.GetPlanetChannelAsync(msg.Channel_Id, msg.Planet_Id);
-            Member = await msg.GetAuthorAsync();
-            Message = msg;
+            Planet = await Cache.GetPlanet(IEvent.Planet_Id);
+            Channel = await Cache.GetPlanetChannelAsync(IEvent.Channel_Id, IEvent.Planet_Id);
+            Member = Cache.PlanetMemberCache.First(x => x.Key == IEvent.Author_Member_Id).Value;
+            Message = null;
         }
 
         public async Task ReplyAsync(string content)
@@ -37,6 +37,7 @@ namespace Valour.Net.CommandHandling
         {
             await ValourClient.PostMessage(Channel.Id, Planet.Id, "", embed);
         }
+
         public async Task ReplyWithMessagesAsync(int delay, List<string> data) {
             foreach (string content in data) {
                 await ValourClient.PostMessage(Channel.Id, Planet.Id, content, null);

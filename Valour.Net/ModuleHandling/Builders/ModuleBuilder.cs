@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ErrorHandling;
+using Valour.Net.ModuleHandling.Models.InfoModels;
 
 namespace Valour.Net.CommandHandling.Builders
 {
