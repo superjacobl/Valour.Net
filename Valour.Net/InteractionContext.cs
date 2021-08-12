@@ -16,7 +16,7 @@ namespace Valour.Net.CommandHandling
         public Planet Planet { get; set;}
         public Channel Channel { get; set;}
         public PlanetMember Member { get; set;}
-        public PlanetMessage Message { get; set;}
+        public InteractionEvent Event { get; set;}
 
         public InteractionContext() { }
 
@@ -25,7 +25,7 @@ namespace Valour.Net.CommandHandling
             Planet = await Cache.GetPlanet(IEvent.Planet_Id);
             Channel = await Cache.GetPlanetChannelAsync(IEvent.Channel_Id, IEvent.Planet_Id);
             Member = Cache.PlanetMemberCache.First(x => x.Key == IEvent.Author_Member_Id).Value;
-            Message = null;
+            Event = IEvent;
         }
 
         public async Task ReplyAsync(string content)
