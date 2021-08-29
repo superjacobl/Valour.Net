@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.Models;
+using Valour.Net.ModuleHandling.Models.InfoModels;
 
 namespace Valour.Net.CommandHandling
 {
@@ -43,11 +44,10 @@ namespace Valour.Net.CommandHandling
             {
                 foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == IEvent.Element_Id))
                 {
-                    object[] args = new object[2];
-                    args[0] = IEvent;
-                    CommandContext ctx = new();
+                    object[] args = new object[1];
+                    InteractionContext ctx = new();
                     await ctx.SetFromImteractionEvent(IEvent);
-                    args[1] = ctx;
+                    args[0] = ctx;
                     Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
                     await result;
                 }
@@ -55,11 +55,10 @@ namespace Valour.Net.CommandHandling
             {
                 foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == null))
                 {
-                    object[] args = new object[2];
-                    args[0] = IEvent;
-                    CommandContext ctx = new();
+                    object[] args = new object[1];
+                    InteractionContext ctx = new();
                     await ctx.SetFromImteractionEvent(IEvent);
-                    args[1] = ctx;
+                    args[0] = ctx;
                     Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
                     await result;
                 }

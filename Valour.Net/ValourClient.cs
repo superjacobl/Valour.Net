@@ -121,8 +121,8 @@ namespace Valour.Net
             BotId = (await GetData<ValourUser>($"https://valour.gg/User/GetUserWithToken?token={Token}")).Id;
 
 
-            //hubConnection.Reconnected += HubConnection_Reconnected;
             await hubConnection.StartAsync();
+            hubConnection.Reconnected += HubConnection_Reconnected; 
 
             // load cache from Valour
             Console.WriteLine("Loading up Cache");
@@ -132,73 +132,88 @@ namespace Valour.Net
 
             List<Task> tasks = new List<Task>();
 
-            foreach (Planet planet in Cache.PlanetCache.Values)
+            foreach (Planet _planet in Cache.PlanetCache.Values)
             {
-                tasks.Add(Task.Run(async () => await Cache.UpdateMembersFromPlanetAsync(planet.Id)));
-                tasks.Add(Task.Run(async () => await Cache.UpdateChannelsFromPlanetAsync(planet.Id)));
-                tasks.Add(Task.Run(async () => await Cache.UpdatePlanetRoles(planet.Id)));
-                tasks.Add(Task.Run(async () => await hubConnection.SendAsync("JoinInteractionGroup", planet.Id, Token)));
+                tasks.Add(Cache.UpdateMembersFromPlanetAsync(_planet.Id));
+                tasks.Add(Cache.UpdateChannelsFromPlanetAsync(_planet.Id));
+                tasks.Add(Cache.UpdatePlanetRoles(_planet.Id));
+            }
+
+            await Task.WhenAll(tasks);
+
+            Planet planet = new Planet();
+
+            // this method took 1.4ms to load 1.4k members
+
+            foreach (PlanetMember member in Cache.PlanetMemberCache.Values)
+            {
+                if (planet.Id != member.Planet_Id)
+                {
+                    planet = Cache.PlanetCache.Values.First(x => x.Id == member.Planet_Id);
+                }
+
+                foreach (ulong roleid in member.RoleIds)
+                {
+                    member.Roles.Add(planet.Roles.First(x => x.Id == roleid));
+                }
+            }
+
+
+            // set up signar stuff
+
+            // join every planet and channel
+            Console.WriteLine("Registering Modules");
+            RegisterModules();
+
+            Console.WriteLine("Connecting to Valour");
+
+            foreach (Planet _planet in Cache.PlanetCache.Values)
+            {
+                tasks.Add(hubConnection.SendAsync("JoinPlanet", _planet.Id, Token));
+                // join interaction group
+                tasks.Add(hubConnection.SendAsync("JoinInteractionGroup", _planet.Id, Token));
+            }
+
+        
+
+            foreach (Channel channel in Cache.ChannelCache.Values)
+            {        
+
+                tasks.Add(hubConnection.SendAsync("JoinChannel", channel.Id, Token));
             }
 
             await Task.WhenAll(tasks);
 
 
-            // Sets every member's RoleNames for speed
-
-            // use basic variable caching to improve the speed of this in the future
-
-            foreach (PlanetMember member in Cache.PlanetMemberCache.Values)
-            {
-                foreach (ulong roleid in member.RoleIds)
-                {
-                    member.Roles.Add(Cache.PlanetCache.Values.First(x => x.Id == member.Planet_Id).Roles.First(x => x.Id == roleid));
-                }
-            }
-
-            //Register command modules
-            Console.WriteLine("Registering Modules");
-            RegisterModules();
-
-            // set up signalr stuff
-
-            //returnline = Console.GetCursorPosition().Top;
-            Console.WriteLine("Connecting to Valour");
-
-
-            // join every planet and channel
-
-            foreach (Planet planet in Cache.PlanetCache.Values)
-            {
-                await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false);
-                foreach (Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id))
-                {
-                    await hubConnection.SendAsync("JoinChannel", channel.Id, Token).ConfigureAwait(false);
-                }
-            }
-
             // set up events
-
             hubConnection.On<string>("Relay", OnRelay);
             hubConnection.On<string>("InteractionEvent", OnInteractionEvent);
 
-            Console.WriteLine("\n-----Ready----- ");
+            Console.WriteLine("\n\r-----Ready-----\n\r");
         }
 
-        /* This needs to be fixed so it reconnects correctly
+        
         private static async Task HubConnection_Reconnected(string arg)
         {
-            hubConnection.On<string>("Relay", OnRelay);
 
-            foreach (Planet planet in Cache.PlanetCache.Values)
+            List<Task> tasks = new List<Task>();
+
+            foreach (Planet _planet in Cache.PlanetCache.Values)
             {
-                await hubConnection.SendAsync("JoinPlanet", planet.Id, Token).ConfigureAwait(false);
-                foreach (Channel channel in Cache.ChannelCache.Values.Where(x => x.Planet_Id == planet.Id))
-                {
-                    await hubConnection.SendAsync("JoinChannel", channel.Id, Token).ConfigureAwait(false);
-                }
+                tasks.Add(hubConnection.SendAsync("JoinPlanet", _planet.Id, Token));
+                // join interaction group
+                tasks.Add(hubConnection.SendAsync("JoinInteractionGroup", _planet.Id, Token));
             }
+
+            foreach (Channel channel in Cache.ChannelCache.Values)
+            {
+                tasks.Add(hubConnection.SendAsync("JoinChannel", channel.Id, Token));
+            }
+
+            await Task.WhenAll(tasks);
+
         }
-        */
+
 
         public static void RegisterModules()
         {
