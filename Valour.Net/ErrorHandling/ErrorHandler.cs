@@ -13,9 +13,9 @@ namespace Valour.Net.ErrorHandling
         }
 
 
-        public void ReportError(GenericError error)
+        public static void ReportError(GenericError error)
         {
-            Console.WriteLine(error);
+            Console.WriteLine(error.ToString());
         }
 
     }

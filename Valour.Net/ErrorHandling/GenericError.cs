@@ -28,8 +28,11 @@ namespace Valour.Net.ErrorHandling
 
         public override string ToString()
         {
-            return $"[{Time.TimeOfDay}][{errorTier}] {Message}";
+            if (InnerException != null)
+            {
+                return $"[{Time:HH:mm:ss}][{errorTier}] {Message}\n{InnerException.StackTrace}";
+            }
+            return $"[{Time:HH:mm:ss}][{errorTier}] {Message}";
         }
-
     }
 }

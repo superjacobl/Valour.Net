@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using Valour.Net.Models;
+using Valour.Net.TypeConverters;
 
 namespace Valour.Net.CommandHandling.InfoModels
 {
@@ -13,38 +14,44 @@ namespace Valour.Net.CommandHandling.InfoModels
     {
         public string MainAlias { get; set; }
         public List<string> Aliases { get; set; }
-        public List<Attribute> Attributes { get; set; }
+        //public List<Attribute> Attributes { get; set; }
         public List<string> OnlyRoles { get; set; }
         public List<string> ExpectRoles { get; set; }
         public List<ParameterInfo> Parameters { get; set; }
         public ModuleInfo moduleInfo {get ;set;}
         public MethodInfo Method { get; set; }
+        public bool IsFallback { get; set; }
 
-
-        public CommandInfo(string MainAlias, List<string> Aliases, List<Attribute> Attributes, List<ParameterInfo> Parameters, MethodInfo Method)
+        /*
+        public CommandInfo(string MainAlias, List<string> Aliases, List<ParameterInfo> Parameters, MethodInfo Method)
         {
             this.MainAlias = MainAlias;
             this.Aliases = Aliases;
-            this.Attributes = Attributes;
+            //this.Attributes = Attributes;
             this.Parameters = Parameters;
             this.Method = Method;
         }
+        */
 
         public List<object> ConvertStringArgs(List<string> args, CommandContext ctx) {
             List<object> objects = new List<object>();
             objects.Add(ctx);
-            for (int i = 0; i < Parameters.Count(); i++)
+            for (int i = 0; i < Parameters.Count; i++)
             {
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
-                if (Parameters[i].IsRemainder == false) {
-                    objects.Add(typeConverter.ConvertFromString(args[i]));
+                if (Parameters[i].IsRemainder == false)
+                {
+                    objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
                 }
-                else {
+                else
+                {
                     string remainder = "";
-                    foreach (string arg in args.GetRange(i, args.Count()-1)){
+                    foreach (string arg in args.GetRange(i, args.Count - i))
+                    {
                         remainder += $"{arg} ";
                     }
-                    remainder.Substring(0,remainder.Count()-2);
+                    //remainder.Substring(0,remainder.Count()-2);
+                    remainder = remainder.TrimEnd();
                     objects.Add(remainder);
                     return objects;
                 }
@@ -55,10 +62,11 @@ namespace Valour.Net.CommandHandling.InfoModels
 
         // check if a commandname is this command
 
-        public bool CheckIfCommand(string name, List<string> args, CommandContext ctx) {
-            if (MainAlias.ToLower() == name || Aliases.Contains(name)) {
-                if (args.Count() != Parameters.Count()) {
-                    if (Parameters.Count() > 0) {
+        public async Task<bool> CheckIfCommand(string name, List<string> args, CommandContext ctx) {
+            //Console.WriteLine(Aliases);
+            if (MainAlias.ToLower() == name.ToLower() || Aliases.Contains(name.ToLower())) {
+                if (args.Count != Parameters.Count) {
+                    if (Parameters.Count > 0) {
                         if (Parameters.Last().IsRemainder == false) {
                             return false;
                         }
@@ -68,17 +76,22 @@ namespace Valour.Net.CommandHandling.InfoModels
                     }
                     
                 }
-                if (args.Count() == 0 && Parameters.Count() > 0) {
+                if (args.Count == 0 && Parameters.Count > 0) {
                     return false;
                 }
 
-                for (int i = 0; i < Parameters.Count(); i++)
+                for (int i = 0; i < Parameters.Count; i++)
                 {
                     try {
                         TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
-                        typeConverter.ConvertFromString(args[i]);
+                        
+                        if (!typeConverter.CanConvertFrom(args[i].GetType()))
+                        {
+                            return false;
+                        }                        
                     }
-                    catch {
+                    catch (Exception e){
+                        ErrorHandling.ErrorHandler.ReportError(new("Severe error converting argument", ErrorHandling.ErrorSeverity.FATAL, e));
                         return false;
                     }
                 }
@@ -87,8 +100,8 @@ namespace Valour.Net.CommandHandling.InfoModels
 
                 if (OnlyRoles != null) {
                     foreach (string RoleName in OnlyRoles) {
-                        if (ctx.Member.Roles.Any(x => x.Name == RoleName) != true) {
-                            EventService.UserLacksTheRolesToUseACommand(this, ctx);
+                        if ((await ctx.Member.GetRolesAsync()).Any(x => x.Name == RoleName) != true) {
+                            await EventService.UserLacksTheRolesToUseACommand(this, ctx);
                             return false;
                         }
                     }
@@ -98,7 +111,7 @@ namespace Valour.Net.CommandHandling.InfoModels
 
                 if (ExpectRoles != null) {
                     foreach (string RoleName in ExpectRoles) {
-                        if (ctx.Member.Roles.Any(x => x.Name == RoleName) == true) {
+                        if ((await ctx.Member.GetRolesAsync()).Any(x => x.Name == RoleName) == true) {
                             return false;
                         }
                     }

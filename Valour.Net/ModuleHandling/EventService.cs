@@ -4,12 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
+using Valour.Net.Models.Embed;
+using Valour.Net.ModuleHandling.Models.InfoModels;
+using Valour.Api.Items.Users;
+using Valour.Api.Items.Planets;
+using Valour.Api.Client;
 
 namespace Valour.Net.CommandHandling
 {
     public static class EventService
     {
         public static List<EventInfo> _Events = new List<EventInfo>();
+        public static List<InteractionEventInfo> _InteractionEvents = new List<InteractionEventInfo>();
+
 
         public static async Task UserLacksTheRolesToUseACommand(CommandInfo command, CommandContext ctx)
         {
@@ -31,6 +38,36 @@ namespace Valour.Net.CommandHandling
                 Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
                 await result;
             }
+        }
+
+        public static async Task OnInteraction(EmbedInteractionEvent IEvent)
+        {
+            if (IEvent.Author_Member_Id != (await ValourClient.GetSelfMember(IEvent.Planet_Id)).Id) return;
+            if (_InteractionEvents.Any(x => x.InteractionID == IEvent.Element_Id))
+            {
+                foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == IEvent.Element_Id))
+                {
+                    object[] args = new object[1];
+                    InteractionContext ctx = new();
+                    await ctx.SetFromImteractionEvent(IEvent);
+                    args[0] = ctx;
+                    Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
+                    await result;
+                }
+            }else
+            {
+                foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == null))
+                {
+                    object[] args = new object[1];
+                    InteractionContext ctx = new();
+                    await ctx.SetFromImteractionEvent(IEvent);
+                    args[0] = ctx;
+                    Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
+                    await result;
+                }
+            }
+
+            
         }
 
     }

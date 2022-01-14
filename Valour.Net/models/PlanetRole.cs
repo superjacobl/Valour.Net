@@ -1,6 +1,10 @@
+using System;
+using Valour.Api.Items.Planets;
+using Valour.Net.Models.Embed;
+
 namespace Valour.Net.Models
 {
-    public class PlanetRole
+    public class NetPlanetRole
     {
 
         /// <summary>
@@ -48,6 +52,11 @@ namespace Valour.Net.Models
         public uint GetAuthority()
         {
             return uint.MaxValue - (1 + Position);
+        }
+
+        public static explicit operator NetPlanetRole(Planet v)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ErrorHandling;
+using Valour.Net.ModuleHandling.Models.InfoModels;
 
 namespace Valour.Net.CommandHandling.Builders
 {
@@ -23,9 +24,6 @@ namespace Valour.Net.CommandHandling.Builders
         /// <param name="module">Class type to convert</param>
         public void BuildModule(Type module)
         {
-
-            
-            
             ConstructorInfo constructor = module.GetConstructor(Type.EmptyTypes);
             CommandModuleBase moduleInstance  = (CommandModuleBase)constructor.Invoke(Array.Empty<object>());
             Module.Instance = moduleInstance;
@@ -46,15 +44,17 @@ namespace Valour.Net.CommandHandling.Builders
                 eventInfo.moduleInfo = Module;
                 EventService._Events.Add(eventInfo);
             }
-            
-        }
 
-
-        /// <summary>
-        /// Registers module to provided command service
-        /// </summary>
-        public void Register()
-        {
+            foreach (MethodInfo method in module.GetMethods().Where(m => m.GetCustomAttributes(typeof(InteractionAttribute), false).Length > 0))
+            {
+                InteractionEventInfo eventInfo = new();
+                InteractionAttribute EventAttr = (InteractionAttribute)method.GetCustomAttribute(typeof(InteractionAttribute));
+                eventInfo.InteractionName = EventAttr.InteractionName;
+                eventInfo.InteractionID = (EventAttr.InteractionID ?? null);
+                eventInfo.Method = method;
+                eventInfo.moduleInfo = Module;
+                EventService._InteractionEvents.Add(eventInfo);
+            }
 
         }
     }
