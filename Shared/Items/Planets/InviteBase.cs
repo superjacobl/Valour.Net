@@ -1,4 +1,3 @@
-global using System;
 using System.Text.Json.Serialization;
 
 namespace Valour.Shared.Items.Planets;
