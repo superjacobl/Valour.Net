@@ -9,7 +9,7 @@
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageIcon>valour-logo.png</PackageIcon>
+    <PackageIcon>logo.png</PackageIcon>
     <Description>An unofficial C# wrapper for the Valour API</Description>
     <Authors>superjacobl, Coca</Authors>
     <RepositoryType>git</RepositoryType>
@@ -20,10 +20,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.1" />
+    <PackageReference Include="IdGen" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\valour-logo.png">
+    <None Include="..\logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
-using Valour.Net.Models.Planets;
 using System.Collections.Concurrent;
 using Valour.Net;
 using Valour.Api.Items.Messages;
@@ -17,7 +16,7 @@ namespace Valour.Net.CommandHandling
     public class InteractionContext
     {
         public Planet Planet { get; set;}
-        public NetChannel Channel { get; set;}
+        public PlanetChatChannel Channel { get; set;}
         public PlanetMember Member { get; set;}
         public EmbedInteractionEvent Event { get; set;}
 
@@ -26,7 +25,7 @@ namespace Valour.Net.CommandHandling
         public async Task SetFromImteractionEvent(EmbedInteractionEvent IEvent)
         {
             Planet = await Planet.FindAsync(IEvent.Planet_Id);
-            Channel = (NetChannel)await PlanetChatChannel.FindAsync(IEvent.Channel_Id);
+            Channel = await PlanetChatChannel.FindAsync(IEvent.Channel_Id);
             Member = await PlanetMember.FindAsync(IEvent.Member_Id);
             Event = IEvent;
         }

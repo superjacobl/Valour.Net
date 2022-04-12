@@ -11,7 +11,7 @@ namespace Valour.Net.CommandHandling
         public InteractionAttribute(string name)
         {
             InteractionName = name;
-            InteractionID = null;
+            InteractionID = "";
         }
 
         public InteractionAttribute(string InteractionName, string ElementID)

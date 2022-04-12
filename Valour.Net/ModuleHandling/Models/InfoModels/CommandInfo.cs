@@ -39,9 +39,15 @@ namespace Valour.Net.CommandHandling.InfoModels
             for (int i = 0; i < Parameters.Count; i++)
             {
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
-                if (Parameters[i].IsRemainder == false)
-                {
-                    objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
+                if (Parameters[i].IsRemainder == false) {
+                    PlanetMemberConverter memberconverter = new PlanetMemberConverter();
+                    if (memberconverter.CanConvertFrom(args[i])) {
+                        objects.Add(memberconverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
+                    }
+                    else
+                    {
+                        objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
+                    }
                 }
                 else
                 {
@@ -84,11 +90,19 @@ namespace Valour.Net.CommandHandling.InfoModels
                 {
                     try {
                         TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
-                        
-                        if (!typeConverter.CanConvertFrom(args[i].GetType()))
+
+                        // check planetmembers
+                        PlanetMemberConverter memberconverter = new PlanetMemberConverter();
+                        if (memberconverter.CanConvertFrom(args[i])) {
+                            Console.WriteLine("HI!");
+                        }
+                        else 
                         {
-                            return false;
-                        }                        
+                            if (!typeConverter.CanConvertFrom(args[i].GetType()))
+                            {
+                                return false;
+                            }   
+                        }                  
                     }
                     catch (Exception e){
                         ErrorHandling.ErrorHandler.ReportError(new("Severe error converting argument", ErrorHandling.ErrorSeverity.FATAL, e));

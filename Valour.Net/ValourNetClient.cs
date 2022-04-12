@@ -19,6 +19,7 @@ using Valour.Api.Client;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ErrorHandling;
+using IdGen;
 //using Valour.Net.Models;
 //using Valour.Net.Models.Messages;
 
@@ -28,6 +29,7 @@ namespace Valour.Net
     {
         static HttpClient httpClient = new HttpClient();
         public static string Token { get; set; }
+        public static IdManager idManager = new IdManager();
 
         public static ulong BotId { get; set; }
 
@@ -49,11 +51,7 @@ namespace Valour.Net
             string encodedEmail = System.Web.HttpUtility.UrlEncode(email);
             string encodedPassword = System.Web.HttpUtility.UrlEncode(password);
 
-            TokenRequest content = new TokenRequest()
-            {
-                Email = email,
-                Password = password
-            };
+            TokenRequest content = new TokenRequest(email, password);
             var response = await httpClient.PostAsJsonAsync($"https://valour.gg/api/user/requesttoken", content);
 
             var message = await response.Content.ReadAsStringAsync();
@@ -180,7 +178,7 @@ namespace Valour.Net
             {
                 await OnRelay(message);
             };
-            ValourClient.HubConnection.On<string>("InteractionEvent", OnInteractionEvent);
+            ValourClient.HubConnection.On<EmbedInteractionEvent>("InteractionEvent", OnInteractionEvent);
 
             Console.WriteLine("\n\r-----Ready-----\n\r");
         }
@@ -191,8 +189,8 @@ namespace Valour.Net
 
             var type = typeof(Planet);
 
-            foreach(Planet planet in ValourCache.HCache[typeof(Valour.Api.Items.Planets.Planet)].Values) {
-
+            Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values, async _planet => {
+                Planet planet = (Planet)_planet;
                 await ValourClient.HubConnection.SendAsync("JoinPlanet", planet.Id, Token);
 
                 await ValourClient.HubConnection.SendAsync("JoinInteractionGroup", planet.Id, Token);
@@ -206,7 +204,7 @@ namespace Valour.Net
                     await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
                 }
 
-            }
+            });
 
             return;
 
@@ -240,6 +238,8 @@ namespace Valour.Net
         {
             PlanetMessage message = new(msg, (await ValourClient.GetSelfMember(planetid)).Id, channelid, planetid);
 
+            message.Id = idManager.Generate();
+
             if (embed is not null)
             {
                 JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
@@ -265,9 +265,10 @@ namespace Valour.Net
             return;
         }
 
-        public static async Task OnInteractionEvent(string Data)
+        public static async Task OnInteractionEvent(EmbedInteractionEvent interactionEvent)
         {
-            await EventService.OnInteraction(JsonSerializer.Deserialize<EmbedInteractionEvent>(Data));
+            Console.WriteLine("TEST");
+            await EventService.OnInteraction(interactionEvent);
         }
 
 
@@ -277,7 +278,11 @@ namespace Valour.Net
 
             PlanetMember member = await PlanetMember.FindAsync(message.Member_Id);
 
-            if (((await member.GetUserAsync()).Bot && DisallowBotRespond) || (member.User_Id == BotId && DisallowSelfRespond)) return;
+            if (message.Channel_Id == 4458944803897344 || message.Channel_Id == 4459421423108096 || message.Channel_Id == 4459421423108096) {
+                return;
+            }
+
+            //if (((await member.GetUserAsync()).Bot && DisallowBotRespond) || (member.User_Id == BotId && DisallowSelfRespond)) return;
 
             CommandContext ctx = new CommandContext();
             ctx.MessageTimeTook = DateTime.UtcNow-message.TimeSent;
@@ -288,6 +293,8 @@ namespace Valour.Net
             }
 
             await EventService.OnMessage(ctx);
+
+            if (((await member.GetUserAsync()).Bot && DisallowBotRespond) || (member.User_Id == BotId && DisallowSelfRespond)) return;
 
             // check to see if message has a command in it
             message.Content = message.Content.Trim();
@@ -306,6 +313,8 @@ namespace Valour.Net
                 // get clean command string
 
                 string commandstring = message.Content[commandprefix.Length..];
+
+                commandstring = commandstring.Replace("\u00A0", " ");
 
                 // get args
 
@@ -394,5 +403,28 @@ namespace Valour.Net
             return response.Data;
         }
 
+    }
+    public class IdManager
+    {
+        public IdGenerator Generator { get; set; }
+
+        public IdManager()
+        {
+            // Fun fact: This is the exact moment that SpookVooper was terminated
+            // which led to the development of Valour becoming more than just a side
+            // project. Viva la Vooperia.
+            var epoch = new DateTime(2021, 1, 11, 4, 37, 0);
+
+            var structure = new IdStructure(45, 10, 8);
+
+            var options = new IdGeneratorOptions(structure, new DefaultTimeSource(epoch));
+
+            Generator = new IdGenerator(0, options);
+        }
+
+        public ulong Generate()
+        {
+            return (ulong)Generator.CreateId();
+        }
     }
 }

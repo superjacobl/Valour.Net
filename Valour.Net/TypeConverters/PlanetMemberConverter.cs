@@ -11,14 +11,20 @@ using Valour.Net.Models;
 
 namespace Valour.Net.TypeConverters
 {
-    class PlanetMemberConverter : TypeConverter
+    class PlanetMemberConverter
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        public bool CanConvertFrom(object _object)
         {
-            return sourceType == typeof(string) || sourceType == typeof(ulong)|| base.CanConvertFrom(context, sourceType);
+            Type sourceType = _object.GetType();
+            if (sourceType == typeof(string)) {
+                if (_object.ToString().Length == 20) {
+                    return true;
+                }
+            }
+            return false;
         }
 
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        public object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             CommandContext ctx = (context as CommandArgConverterContext).ctx;
             object result = null;
@@ -33,7 +39,7 @@ namespace Valour.Net.TypeConverters
                 {
                     if (ulong.TryParse(stringValue.Substring(4, 15), out MemberID))
                     {
-                        result = PlanetMember.FindAsync(MemberID, ctx.Planet.Id).Result;
+                        result = PlanetMember.FindAsync(MemberID).Result;
                     }
                     else
                     {

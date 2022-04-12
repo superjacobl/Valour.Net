@@ -54,9 +54,10 @@ namespace Valour.Net.CommandHandling
                     Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
                     await result;
                 }
-            }else
+            }
+            else
             {
-                foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == null))
+                foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == ""))
                 {
                     object[] args = new object[1];
                     InteractionContext ctx = new();
@@ -66,6 +67,15 @@ namespace Valour.Net.CommandHandling
                     await result;
                 }
             }
+            foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == "" && x.InteractionID == ""))
+                {
+                    object[] args = new object[1];
+                    InteractionContext ctx = new();
+                    await ctx.SetFromImteractionEvent(IEvent);
+                    args[0] = ctx;
+                    Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
+                    await result;
+                }
 
             
         }
