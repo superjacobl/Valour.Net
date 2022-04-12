@@ -4,11 +4,12 @@ public class EmbedPageBuilder
 {
     public List<EmbedItem> Items = new();
 
-    public EmbedPageBuilder AddText(string name = "", string text = "", bool inline = false, string textColor = "ffffff")
+    public EmbedPageBuilder AddText(string name = null, string text = "", bool inline = false, string textColor = "ffffff")
     {
         EmbedItem item = new()
         {
             Type = EmbedItemType.Text,
+            Name = name,
             Text = text,
             Inline = inline,
             TextColor = textColor
