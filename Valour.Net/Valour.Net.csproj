@@ -9,7 +9,7 @@
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageIcon>logo.png</PackageIcon>
+    <PackageIcon>valour-logo.png</PackageIcon>
     <Description>An unofficial C# wrapper for the Valour API</Description>
     <Authors>superjacobl, Coca</Authors>
     <RepositoryType>git</RepositoryType>
