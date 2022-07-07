@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.1.6</Version>
+    <Version>0.2.0</Version>
     <Company />
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\logo.png">
+    <None Include="logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
