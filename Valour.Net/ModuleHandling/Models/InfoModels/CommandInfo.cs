@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
-using Valour.Net.Models;
 using Valour.Net.TypeConverters;
-
+using Microsoft.Extensions.Configuration;
 namespace Valour.Net.CommandHandling.InfoModels
 {
     public class CommandInfo
@@ -34,7 +32,7 @@ namespace Valour.Net.CommandHandling.InfoModels
         */
 
         public List<object> ConvertStringArgs(List<string> args, CommandContext ctx) {
-            List<object> objects = new List<object>();
+            List<object> objects = new();
             objects.Add(ctx);
             for (int i = 0; i < Parameters.Count; i++)
             {

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling;
-using Valour.Net.Models;
 
 namespace Valour.Net.TypeConverters
 {
@@ -14,7 +13,7 @@ namespace Valour.Net.TypeConverters
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            return sourceType == typeof(string) || sourceType == typeof(ulong)|| base.CanConvertFrom(context, sourceType);
+            return sourceType == typeof(string) || sourceType == typeof(long)|| base.CanConvertFrom(context, sourceType);
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
@@ -26,13 +25,13 @@ namespace Valour.Net.TypeConverters
             if (!string.IsNullOrEmpty(stringValue))
             {
                 
-                if (ulong.TryParse(stringValue, out ulong UserID)) // Input as id
+                if (long.TryParse(stringValue, out long UserID)) // Input as id
                 {
                     //result = Cache.GetValourUser(UserID).Result;
                 }
                 else if (stringValue.Substring(0, 4) == "«@m-") //input as ping 
                 {
-                    if (ulong.TryParse(stringValue.Substring(4, 15), out ulong MemberID))
+                    if (long.TryParse(stringValue.Substring(4, 15), out long MemberID))
                     {
                         
                         //result = Cache.GetValourUser(Cache.PlanetMemberCache.Values.FirstOrDefault(x => x.Planet_Id == ctx.Planet.Id && x.Id == MemberID).User_Id).Result;

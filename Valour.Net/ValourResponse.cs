@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Valour.Net
 {
     public class ValourResponse<T>
     {
-        [JsonProperty]
+        [JsonInclude]
         public string Message { get; set; }
 
-        [JsonProperty]
+        [JsonInclude]
         public bool Success { get; set; }
 
-        [JsonProperty]
+        [JsonInclude]
         public T Data { get; set; }
     }
 }

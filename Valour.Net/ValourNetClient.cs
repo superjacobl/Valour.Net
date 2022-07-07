@@ -4,8 +4,10 @@ global using Valour.Api.Items.Planets.Channels;
 global using Valour.Api.Items.Messages;
 global using Valour.Api.Items.Users;
 global using Valour.Shared.Items.Messages.Embeds;
+global using Valour.Api.Items;
+global using Valour.Shared.Items.Authorization;
 
-using Microsoft.AspNetCore.SignalR.Client;
+//using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,48 +17,95 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Valour.Api.Client;
-//using Valour.Api.Messages
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ErrorHandling;
 using IdGen;
-//using Valour.Net.Models;
-//using Valour.Net.Models.Messages;
+using Microsoft.AspNetCore.SignalR.Client;
+using Valour.Shared.Items.Users;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using Valour.Api.Items.Authorization;
 
 namespace Valour.Net
 {
     public class ValourNetClient
     {
-        static HttpClient httpClient = new HttpClient();
+        static HttpClient httpClient = new();
+
         public static string Token { get; set; }
-        public static IdManager idManager = new IdManager();
 
-        public static ulong BotId { get; set; }
+        internal static IdManager idManager = new();
 
-        public static List<string> BotPrefixList = new List<string>();
+        internal static string BaseUrl = "https://localhost:3001/";// "https://valour.gg/";
+
+        /// <summary>
+        /// The User Id of your bot.
+        /// </summary>
+
+        public static long BotId { get; set; }
+
+        public static List<string> BotPrefixList = new();
+
+        /// <summary>
+        /// If true, your bot will not receive messages, nor will it send messages
+        /// </summary>
+        
+        public static bool UnitTesting = false;
+
+        /// <summary>
+        /// If true, your bot will respond to itself.
+        /// </summary>
 
         public static bool DisallowSelfRespond = true;
 
+        /// <summary>
+        /// If true, your bot will respond to other bots.
+        /// </summary>
+
         public static bool DisallowBotRespond = true;
 
-        public static Func<PlanetMessage, Task> OnMessage;
+        /// <summary>
+        /// If true, messages will be executed in parallel. Commands will also be handled in parallel. 
+        /// Please note, if you use a database be sure to prevent two threads from executing something at the same time on a single database context.
+        /// </summary>
+        public static bool ExecuteMessagesInParallel = false;
+
+        internal static async ValueTask InvokeMethod(MethodInfo methodInfo, CommandModuleBase instance, object[] args)
+        {
+            //methodInfo.ReturnType.GetMethod(nameof(Task.GetAwaiter));
+            if (methodInfo.ReturnType == typeof(Task) || methodInfo.ReturnType == typeof(ValueTask))
+            {
+                await (Task)methodInfo.Invoke(instance, args);
+            }
+            else
+            {
+                methodInfo.Invoke(instance, args);
+            }
+        }
 
         //public static ErrorHandler errorHandler = new();
 
         /// <summary>
-        /// This is how to "Login" as the bot. All other requests require a token so therefore this must be run first.
+        /// This is how to "Login" as the bot. All other requests require a token; therefore, this must be run first.
         /// </summary>
         public static async Task<string> RequestTokenAsync(string email, string password)
         {
             string encodedEmail = System.Web.HttpUtility.UrlEncode(email);
             string encodedPassword = System.Web.HttpUtility.UrlEncode(password);
 
-            TokenRequest content = new TokenRequest(email, password);
-            var response = await httpClient.PostAsJsonAsync($"https://valour.gg/api/user/requesttoken", content);
+            TokenRequest content = new()
+            {
+                Email = email,
+                Password = password
+            };
+            var response = await httpClient.PostAsJsonAsync($"{BaseUrl}api/user/token", content);
 
-            var message = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
 
-            return message;
+            AuthToken token = JsonSerializer.Deserialize<AuthToken>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions() {PropertyNameCaseInsensitive = true});
+
+            return token.Id;
         }
 
         /// <summary>
@@ -76,10 +125,6 @@ namespace Valour.Net
             BotPrefixList.Add(prefix);
         }
 
-        /// <summary>
-        /// Add new prefix to recognised prefixes list
-        /// </summary>
-        /// <param name="prefix">New prefix to be added</param>
         public static void AddPrefix(string prefix)
         {
             /*
@@ -99,10 +144,6 @@ namespace Valour.Net
             }
         }
 
-        /// <summary>
-        /// Remove prefix from currently recognised prefixes
-        /// </summary>
-        /// <param name="prefix">Prefix to be removed</param>
         public static void RemovePrefix(string prefix)
         {
             if (!BotPrefixList.Remove(prefix))
@@ -126,16 +167,14 @@ namespace Valour.Net
 
             ValourClient.SetHttpClient(new HttpClient
             {
-                BaseAddress = new Uri("https://valour.gg")
+                BaseAddress = new Uri(BaseUrl)
             });
 
             Token = await RequestTokenAsync(email, password);
             if (Token == null) //Token returned null meaning valour is unavailable
                 return;
 
-            await ValourClient.InitializeSignalR();
-
-            Planet planet = new Planet();
+            await ValourClient.InitializeSignalR(BaseUrl+"planethub");
 
             // set up signar stuff
 
@@ -149,7 +188,7 @@ namespace Valour.Net
 
             await ValourClient.InitializeUser(Token);
 
-            Planet _planet = (Planet)ValourCache.HCache[typeof(Valour.Api.Items.Planets.Planet)].Values.First();
+            Planet _planet = (Planet)ValourCache.HCache[typeof(Planet)].Values.First();
 
             BotId = ValourClient.Self.Id;
 
@@ -172,23 +211,64 @@ namespace Valour.Net
 
             await HubConnection_Reconnected(null);
 
-            ValourClient.HubConnection.Reconnected += HubConnection_Reconnected;
+            Console.WriteLine("Loaded All Planet Data & Channel Data into Cache");
 
-            ValourClient.OnMessageRecieved += async (message) =>
+            ValourClient.HubConnection.Reconnected += HubConnection_Reconnected;
+            ValourClient.OnMessageRecieved += async (PlanetMessage msg) =>
             {
-                await OnRelay(message);
+                if (ExecuteMessagesInParallel)
+                {
+                    OnRelay(msg);
+                }
+                else
+                {
+                    await OnRelay(msg);
+                }
             };
             ValourClient.HubConnection.On<EmbedInteractionEvent>("InteractionEvent", OnInteractionEvent);
 
+            ItemObserver<PlanetChatChannel>.OnAnyUpdated += OnChannelUpdate;
+
+            ItemObserver<PermissionsNode>.OnAnyUpdated += OnPermissionsNodeUpdate;
+
             Console.WriteLine("\n\r-----Ready-----\n\r");
+        }
+
+        public static async Task JoinCategory(PlanetCategoryChannel category) {
+            foreach(PlanetChatChannel channel in ValourCache.GetAll<PlanetChatChannel>().Where(x => x.ParentId == category.Id)) 
+            {
+                ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
+            }
+            foreach(PlanetCategoryChannel _category in ValourCache.GetAll<PlanetCategoryChannel>().Where(x => x.ParentId == category.Id)) 
+            {
+                JoinCategory(_category);
+            }
+        }
+
+        public static async Task OnPermissionsNodeUpdate(PermissionsNode node, bool newitem, int flags)
+        {
+            // try to connect to the channel
+            if (node.TargetType == PermissionsTarget.PlanetChatChannel) {
+                await ValourClient.HubConnection.SendAsync("JoinChannel", node.TargetId, Token);
+            }
+            // or try to connect to all channels in the category
+            else if (node.TargetType == PermissionsTarget.PlanetCategoryChannel) {
+                var category = await PlanetCategoryChannel.FindAsync(node.TargetId, node.PlanetId);
+                JoinCategory(category);
+            }
+        }
+
+        public static async Task OnChannelUpdate(PlanetChatChannel channel, bool newitem, int flags) 
+        {
+            if (newitem) {
+                // send JoinChannel to hub so we can get messages from the new channel
+                await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
+            }
         }
 
 
         private static async Task HubConnection_Reconnected(string arg)
         {
-
-            var type = typeof(Planet);
-
             Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values, async _planet => {
                 Planet planet = (Planet)_planet;
                 await ValourClient.HubConnection.SendAsync("JoinPlanet", planet.Id, Token);
@@ -197,70 +277,33 @@ namespace Valour.Net
 
                 var channels = await planet.GetChannelsAsync();
 
-                //await ValourClient.HubConnection.SendAsync("JoinChannel", planet.Main_Channel_Id, Token);
-
                 foreach (PlanetChatChannel channel in channels)
                 {
                     await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
                 }
 
             });
-
-            return;
-
-            await Task.Run(() => Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values, async _planet =>
-            {
-                Planet planet = (Planet)_planet;
-                await ValourClient.HubConnection.SendAsync("JoinPlanet", planet.Id, Token);
-
-                await ValourClient.HubConnection.SendAsync("JoinInteractionGroup", planet.Id, Token);
-
-                var channels = await planet.GetChannelsAsync();
-
-                //await ValourClient.HubConnection.SendAsync("JoinChannel", planet.Main_Channel_Id, Token);
-
-                foreach (PlanetChatChannel channel in channels)
-                {
-                    await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
-                }
-                
-            }));
-
         }
-
 
         public static void RegisterModules()
         {
             ModuleRegistrar.RegisterAllCommands();
         }
 
-        public static async Task PostMessage(ulong channelid, ulong planetid, string msg, Embed embed = null)
+        public static async Task PostMessage(long channelid, long planetid, string msg, Embed embed = null)
         {
-            PlanetMessage message = new(msg, (await ValourClient.GetSelfMember(planetid)).Id, channelid, planetid);
-
-            message.Id = idManager.Generate();
+            PlanetMessage message = new(msg, (await ValourClient.GetSelfMember(planetid)).Id, channelid, planetid)
+            {
+                Id = idManager.Generate()
+            };
 
             if (embed is not null)
             {
                 JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
-                message.Embed_Data = JsonSerializer.Serialize(embed, options);
+                message.EmbedData = JsonSerializer.Serialize(embed, options);
             }
 
             await ValourClient.SendMessage(message);
-
-            //string json = JsonSerializer.Serialize(message, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
-
-            //StringContent content = new StringContent(json);
-
-            //Console.WriteLine(json);
-
-            //HttpResponseMessage httpresponse = await httpClient.PostAsync($"https://valour.gg/api/channel/{channelid}/messages", content);
-            //Console.WriteLine(await httpresponse.Content.ReadAsStringAsync());
-            //ValourResponse<string> valourResponse = await httpresponse.Content.ReadFromJsonAsync<ValourResponse<string>>();
-            //if (!httpresponse.IsSuccessStatusCode || valourResponse.Success == false)
-            //{
-            //    ErrorHandler.ReportError(new($"Error when attempting to post message : {valourResponse.Message}", ErrorSeverity.FATAL));
-            //}
 
             return;
         }
@@ -275,26 +318,17 @@ namespace Valour.Net
 
         public static async Task OnRelay(PlanetMessage message)
         {
-
-            PlanetMember member = await PlanetMember.FindAsync(message.Member_Id);
-
-            if (message.Channel_Id == 4458944803897344 || message.Channel_Id == 4459421423108096 || message.Channel_Id == 4459421423108096) {
-                return;
-            }
-
-            //if (((await member.GetUserAsync()).Bot && DisallowBotRespond) || (member.User_Id == BotId && DisallowSelfRespond)) return;
-
-            CommandContext ctx = new CommandContext();
-            ctx.MessageTimeTook = DateTime.UtcNow-message.TimeSent;
-            await ctx.Set(message);
-            if (OnMessage != null)
+            CommandContext ctx = new()
             {
-                await OnMessage.Invoke(message);
-            }
+                TimeReceived = DateTime.UtcNow,
+                MessageTimeTook = DateTime.UtcNow - message.TimeSent
+            };
+
+            await ctx.Set(message);
 
             await EventService.OnMessage(ctx);
-
-            if (((await member.GetUserAsync()).Bot && DisallowBotRespond) || (member.User_Id == BotId && DisallowSelfRespond)) return;
+            PlanetMember member = await PlanetMember.FindAsync(message.AuthorMemberId, message.PlanetId);
+            if (((await member.GetUserAsync()).Bot && DisallowBotRespond) || (member.UserId == BotId && DisallowSelfRespond)) return;
 
             // check to see if message has a command in it
             message.Content = message.Content.Trim();
@@ -333,7 +367,8 @@ namespace Valour.Net
                         args.Clear();
                     try
                     {
-                        command.Method.Invoke(command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+                        await InvokeMethod(command.Method, command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
+                        await EventService.AfterCommand(ctx);
                     }
                     catch (Exception e)
                     {
@@ -404,11 +439,11 @@ namespace Valour.Net
         }
 
     }
-    public class IdManager
+    internal class IdManager
     {
-        public IdGenerator Generator { get; set; }
+        internal IdGenerator Generator { get; set; }
 
-        public IdManager()
+        internal IdManager()
         {
             // Fun fact: This is the exact moment that SpookVooper was terminated
             // which led to the development of Valour becoming more than just a side
@@ -422,9 +457,9 @@ namespace Valour.Net
             Generator = new IdGenerator(0, options);
         }
 
-        public ulong Generate()
+        internal long Generate()
         {
-            return (ulong)Generator.CreateId();
+            return (long)Generator.CreateId();
         }
     }
 }

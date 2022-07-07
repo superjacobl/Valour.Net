@@ -39,7 +39,7 @@ namespace Valour.Net.CommandHandling.Builders
             {
                 InfoModels.EventInfo eventInfo = new();
                 EventAttribute EventAttr = (EventAttribute)method.GetCustomAttribute(typeof(EventAttribute));
-                eventInfo.EventName = EventAttr.Name;
+                eventInfo.eventType = EventAttr.eventType;
                 eventInfo.Method = method;
                 eventInfo.moduleInfo = Module;
                 EventService._Events.Add(eventInfo);

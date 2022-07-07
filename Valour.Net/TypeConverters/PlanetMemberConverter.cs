@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Valour.Api.Items.Planets;
 using Valour.Net.CommandHandling;
-using Valour.Net.Models;
 
 namespace Valour.Net.TypeConverters
 {
@@ -31,15 +30,15 @@ namespace Valour.Net.TypeConverters
             string stringValue = (string)value;
             if (!string.IsNullOrEmpty(stringValue))
             {
-                if (ulong.TryParse(stringValue, out ulong MemberID)) // Input as id
+                if (long.TryParse(stringValue, out long MemberID)) // Input as id
                 {
-                    result = PlanetMember.FindAsync(ctx.Planet.Id, MemberID).Result;
+                    result = PlanetMember.FindAsync(MemberID, ctx.Planet.Id).Result;
                 }
                 else if (stringValue.Substring(0,4) == "«@m-") //input as ping 
                 {
-                    if (ulong.TryParse(stringValue.Substring(4, 15), out MemberID))
+                    if (long.TryParse(stringValue.Substring(4, 15), out MemberID))
                     {
-                        result = PlanetMember.FindAsync(MemberID).Result;
+                        result = PlanetMember.FindAsync(MemberID, ctx.Planet.Id).Result;
                     }
                     else
                     {

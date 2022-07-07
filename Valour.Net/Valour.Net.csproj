@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.5</Version>
+    <Version>0.1.6</Version>
     <Company />
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageIcon>valour-logo.png</PackageIcon>
+    <PackageIcon>logo.png</PackageIcon>
     <Description>An unofficial C# wrapper for the Valour API</Description>
     <Authors>superjacobl, Coca</Authors>
     <RepositoryType>git</RepositoryType>
@@ -18,20 +18,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.1" />
-    <PackageReference Include="IdGen" Version="3.0.0" />
+    <!-- <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" /> -->
+    <PackageReference Include="IdGen" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\valour-logo.png">
+    <None Include="..\logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Valour.Api\Valour.Api.csproj" />
+    <ProjectReference Include="..\..\Valour\Valour\API\Valour.Api.csproj" />
+    <ProjectReference Include="..\..\Valour\Valour\API\Valour.Api.csproj" />
+    <ProjectReference Include="..\..\Valour\Valour\Shared\Valour.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ModuleHandling\Models\Embeds\" />
   </ItemGroup>
 
 </Project>

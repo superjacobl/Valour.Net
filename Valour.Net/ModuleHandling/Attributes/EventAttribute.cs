@@ -1,14 +1,13 @@
 ﻿using System;
 
-namespace Valour.Net.CommandHandling
+namespace Valour.Net.CommandHandling;
+
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+public class EventAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class EventAttribute : Attribute
+    public EventType eventType { get; }
+    public EventAttribute(EventType eventtype)
     {
-        public string Name { get; }
-        public EventAttribute(string name)
-        {
-            Name = name;
-        }
+        eventType = eventtype;
     }
 }

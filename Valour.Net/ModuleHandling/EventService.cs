@@ -1,84 +1,92 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
-using Valour.Net.Models.Embed;
 using Valour.Net.ModuleHandling.Models.InfoModels;
-using Valour.Api.Items.Users;
-using Valour.Api.Items.Planets;
 using Valour.Api.Client;
 
-namespace Valour.Net.CommandHandling
+namespace Valour.Net.CommandHandling;
+
+public enum EventType
 {
-    public static class EventService
+    Message,
+    Interaction,
+    AfterCommand
+}
+
+internal static class EventService
+{
+    public static List<EventInfo> _Events = new List<EventInfo>();
+    public static List<InteractionEventInfo> _InteractionEvents = new List<InteractionEventInfo>();
+
+
+    public static async Task UserLacksTheRolesToUseACommand(CommandInfo command, CommandContext ctx)
     {
-        public static List<EventInfo> _Events = new List<EventInfo>();
-        public static List<InteractionEventInfo> _InteractionEvents = new List<InteractionEventInfo>();
+        // change this to use something similar to how valour handles requests
+        // ex: [HasRole("You must be mod or above to use this command!", "mod", "admin"]
 
+        EventInfo Event = _Events.First(x => x.eventType == null);
 
-        public static async Task UserLacksTheRolesToUseACommand(CommandInfo command, CommandContext ctx)
-        {
-            EventInfo Event = _Events.First(x => x.EventName == "User Lacks the Role To Use This Command");
-
-            if (Event != null) {
-                object[] args = new object[2];
-                args[0] = ctx;
-                args[1] = command.MainAlias;
-                Event.Method.Invoke(Event.moduleInfo.Instance, args);
-            }
+        if (Event != null) {
+            object[] args = new object[2];
+            args[0] = ctx;
+            args[1] = command.MainAlias;
+            Event.Method.Invoke(Event.moduleInfo.Instance, args);
         }
+    }
 
-        public static async Task OnMessage(CommandContext ctx)
+    internal static async Task OnMessage(CommandContext ctx)
+    {
+        foreach(EventInfo Event in _Events.Where(x => x.eventType == EventType.Message)) {
+            object[] args = new object[1];
+            args[0] = ctx;
+            await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+        }
+    }
+
+    internal static async Task AfterCommand(CommandContext ctx)
+    {
+        foreach (EventInfo Event in _Events.Where(x => x.eventType == EventType.AfterCommand))
         {
-            foreach(EventInfo Event in _Events.Where(x => x.EventName == "Message")) {
+            object[] args = new object[1];
+            args[0] = ctx;
+            await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+        }
+    }
+
+    internal static async Task OnInteraction(EmbedInteractionEvent IEvent)
+    {
+        if (IEvent.Author_MemberId != (await ValourClient.GetSelfMember(IEvent.PlanetId)).Id) return;
+        if (_InteractionEvents.Any(x => x.InteractionID == IEvent.Element_Id))
+        {
+            foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == IEvent.Element_Id))
+            {
                 object[] args = new object[1];
+                InteractionContext ctx = new();
+                await ctx.SetFromImteractionEvent(IEvent);
                 args[0] = ctx;
-                Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
-                await result;
+                bool isAwaitable = Event.Method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) != null;
+                await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
             }
         }
-
-        public static async Task OnInteraction(EmbedInteractionEvent IEvent)
+        else
         {
-            if (IEvent.Author_Member_Id != (await ValourClient.GetSelfMember(IEvent.Planet_Id)).Id) return;
-            if (_InteractionEvents.Any(x => x.InteractionID == IEvent.Element_Id))
+            foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == ""))
             {
-                foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == IEvent.Element_Id))
-                {
-                    object[] args = new object[1];
-                    InteractionContext ctx = new();
-                    await ctx.SetFromImteractionEvent(IEvent);
-                    args[0] = ctx;
-                    Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
-                    await result;
-                }
+                object[] args = new object[1];
+                InteractionContext ctx = new();
+                await ctx.SetFromImteractionEvent(IEvent);
+                args[0] = ctx;
+                await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
             }
-            else
-            {
-                foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == ""))
-                {
-                    object[] args = new object[1];
-                    InteractionContext ctx = new();
-                    await ctx.SetFromImteractionEvent(IEvent);
-                    args[0] = ctx;
-                    Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
-                    await result;
-                }
-            }
-            foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == "" && x.InteractionID == ""))
-                {
-                    object[] args = new object[1];
-                    InteractionContext ctx = new();
-                    await ctx.SetFromImteractionEvent(IEvent);
-                    args[0] = ctx;
-                    Task result = (Task)Event.Method.Invoke(Event.moduleInfo.Instance, args);
-                    await result;
-                }
-
-            
         }
-
+        foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == "" && x.InteractionID == ""))
+        {
+            object[] args = new object[1];
+            InteractionContext ctx = new();
+            await ctx.SetFromImteractionEvent(IEvent);
+            args[0] = ctx;
+            await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+        }
     }
 }

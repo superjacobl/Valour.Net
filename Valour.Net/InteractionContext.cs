@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Concurrent;
 using Valour.Net;
 using Valour.Api.Items.Messages;
@@ -24,9 +24,9 @@ namespace Valour.Net.CommandHandling
 
         public async Task SetFromImteractionEvent(EmbedInteractionEvent IEvent)
         {
-            Planet = await Planet.FindAsync(IEvent.Planet_Id);
-            Channel = await PlanetChatChannel.FindAsync(IEvent.Channel_Id);
-            Member = await PlanetMember.FindAsync(IEvent.Member_Id);
+            Planet = await Planet.FindAsync(IEvent.PlanetId);
+            Channel = await PlanetChatChannel.FindAsync(IEvent.ChannelId, IEvent.PlanetId);
+            Member = await PlanetMember.FindAsync(IEvent.MemberId, IEvent.PlanetId);
             Event = IEvent;
         }
 
