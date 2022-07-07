@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.2.0</Version>
+    <Version>0.6.0</Version>
     <Company />
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
