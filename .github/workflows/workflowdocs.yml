@@ -23,10 +23,11 @@ jobs:
         with:
           submodules: recursive
         
-      - name: Setup .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.101
+          dotnet-version: 7.0.x
+          include-prerelease: true
           
       - name: Setup DocFX
         uses: crazy-max/ghaction-chocolatey@v1
