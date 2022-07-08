@@ -30,9 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Valour\Valour\API\Valour.Api.csproj" />
-    <ProjectReference Include="Valour\Valour\API\Valour.Api.csproj" />
-    <ProjectReference Include="Valour\Valour\Shared\Valour.Shared.csproj" />
+    <ProjectReference Include="..\Valour\Valour\API\Valour.Api.csproj" />
+    <ProjectReference Include="..\Valour\Valour\API\Valour.Api.csproj" />
+    <ProjectReference Include="..\Valour\Valour\Shared\Valour.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
