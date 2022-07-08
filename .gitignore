@@ -368,3 +368,4 @@ docfx/*
 docs/*
 !docfx/docfx.json
 !docfx/templates
+!docs/search-stopwords.json
