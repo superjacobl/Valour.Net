@@ -6,6 +6,7 @@ global using Valour.Api.Items.Users;
 global using Valour.Shared.Items.Messages.Embeds;
 global using Valour.Api.Items;
 global using Valour.Shared.Items.Authorization;
+global using Valour.Net.Client;
 
 //using Microsoft.AspNetCore.SignalR.Client;
 using System;
@@ -27,13 +28,13 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Valour.Api.Items.Authorization;
 
-namespace Valour.Net
+namespace Valour.Net.Client
 {
     public class ValourNetClient
     {
         static HttpClient httpClient = new();
 
-        public static string Token { get; set; }
+        public static string Token;
 
         internal static IdManager idManager = new();
 
@@ -42,8 +43,7 @@ namespace Valour.Net
         /// <summary>
         /// The User Id of your bot.
         /// </summary>
-
-        public static long BotId { get; set; }
+        public static long BotId;
 
         public static List<string> BotPrefixList = new();
 
@@ -89,7 +89,7 @@ namespace Valour.Net
         /// <summary>
         /// This is how to "Login" as the bot. All other requests require a token; therefore, this must be run first.
         /// </summary>
-        public static async Task<string> RequestTokenAsync(string email, string password)
+        internal static async Task<string> RequestTokenAsync(string email, string password)
         {
             string encodedEmail = System.Web.HttpUtility.UrlEncode(email);
             string encodedPassword = System.Web.HttpUtility.UrlEncode(password);
@@ -152,6 +152,10 @@ namespace Valour.Net
             }
         }
 
+        /// <summary>
+        /// Call this method to start the bot.
+        /// </summary>
+
         public static async Task Start(string email, string password)
         {
             Console.WriteLine("Loading up...");
@@ -177,10 +181,10 @@ namespace Valour.Net
             await ValourClient.InitializeSignalR(BaseUrl+"planethub");
 
             // set up signar stuff
-
-            // join every planet and channel
+        
             Console.WriteLine("Registering Modules");
-            RegisterModules();
+
+            ModuleRegistrar.RegisterAllCommands();
 
             Console.WriteLine("Connecting to Valour");
 
@@ -234,7 +238,7 @@ namespace Valour.Net
             Console.WriteLine("\n\r-----Ready-----\n\r");
         }
 
-        public static async Task JoinCategory(PlanetCategoryChannel category) {
+        internal static async Task JoinCategory(PlanetCategoryChannel category) {
             foreach(PlanetChatChannel channel in ValourCache.GetAll<PlanetChatChannel>().Where(x => x.ParentId == category.Id)) 
             {
                 ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
@@ -245,7 +249,7 @@ namespace Valour.Net
             }
         }
 
-        public static async Task OnPermissionsNodeUpdate(PermissionsNode node, bool newitem, int flags)
+        internal static async Task OnPermissionsNodeUpdate(PermissionsNode node, bool newitem, int flags)
         {
             // try to connect to the channel
             if (node.TargetType == PermissionsTarget.PlanetChatChannel) {
@@ -258,7 +262,7 @@ namespace Valour.Net
             }
         }
 
-        public static async Task OnChannelUpdate(PlanetChatChannel channel, bool newitem, int flags) 
+        internal static async Task OnChannelUpdate(PlanetChatChannel channel, bool newitem, int flags) 
         {
             if (newitem) {
                 // send JoinChannel to hub so we can get messages from the new channel
@@ -267,7 +271,7 @@ namespace Valour.Net
         }
 
 
-        private static async Task HubConnection_Reconnected(string arg)
+        internal static async Task HubConnection_Reconnected(string arg)
         {
             Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values, async _planet => {
                 Planet planet = (Planet)_planet;
@@ -283,11 +287,6 @@ namespace Valour.Net
                 }
 
             });
-        }
-
-        public static void RegisterModules()
-        {
-            ModuleRegistrar.RegisterAllCommands();
         }
 
         public static async Task PostMessage(long channelid, long planetid, string msg, Embed embed = null)
@@ -308,7 +307,7 @@ namespace Valour.Net
             return;
         }
 
-        public static async Task OnInteractionEvent(EmbedInteractionEvent interactionEvent)
+        internal static async Task OnInteractionEvent(EmbedInteractionEvent interactionEvent)
         {
             Console.WriteLine("TEST");
             await EventService.OnInteraction(interactionEvent);
@@ -316,7 +315,7 @@ namespace Valour.Net
 
 
 
-        public static async Task OnRelay(PlanetMessage message)
+        internal static async Task OnRelay(PlanetMessage message)
         {
             CommandContext ctx = new()
             {
@@ -378,7 +377,7 @@ namespace Valour.Net
             }
         }
 
-        public static async Task<ValourResponse<T>> GetResponse<T>(string url)
+        internal static async Task<ValourResponse<T>> GetResponse<T>(string url)
         {
             var httpResponse = await httpClient.GetAsync(url);
             if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
@@ -398,7 +397,7 @@ namespace Valour.Net
             return response;
         }
 
-        public static async Task<T> PostData<T>(string url, Dictionary<T, T> data)
+        internal static async Task<T> PostData<T>(string url, Dictionary<T, T> data)
         {
             var httpResponse = await httpClient.PostAsJsonAsync(url, data);
             if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
@@ -418,7 +417,7 @@ namespace Valour.Net
             return response.Data;
         }
 
-        public static async Task<T> GetData<T>(string url)
+        internal static async Task<T> GetData<T>(string url)
         {
             var httpResponse = await httpClient.GetAsync(url);
             if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)

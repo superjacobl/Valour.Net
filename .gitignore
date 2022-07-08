@@ -364,3 +364,7 @@ FodyWeavers.xsd
 /ValourShared
 
 .idea/.idea.Valour.Net/.idea/
+docfx/*
+docs/*
+!docfx/docfx.json
+!docfx/templates
