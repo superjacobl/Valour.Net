@@ -1,3 +1,4 @@
 [submodule "Valour"]
 	path = Valour
 	url = https://github.com/Vooper-Media-LLC/Valour
+	branch = dev
