@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Valour.Net.CommandHandling;
+namespace Valour.Net.CommandHandling.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public class EventAttribute : Attribute

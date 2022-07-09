@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ErrorHandling;
 using Valour.Net.ModuleHandling.Models.InfoModels;
+using Valour.Net.CommandHandling.Attributes;
 
 namespace Valour.Net.CommandHandling.Builders
 {
-    public class ModuleBuilder
+    internal class ModuleBuilder
     { 
         public ModuleInfo Module { get; set; }
         public ModuleBuilder()

@@ -8,7 +8,7 @@ using Valour.Net.CommandHandling.InfoModels;
 
 namespace Valour.Net.ModuleHandling.Models.InfoModels
 {
-    public class InteractionEventInfo
+    internal class InteractionEventInfo
     {
         public string InteractionName { get; set; }
         public string InteractionID { get; set; }

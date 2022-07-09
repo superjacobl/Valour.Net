@@ -6,14 +6,12 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
-using Valour.Net.ModuleHandling.Attributes;
+using Valour.Net.CommandHandling.Attributes;
 using Valour.Net.ErrorHandling;
 
 namespace Valour.Net.CommandHandling.Builders
 {
-
-    
-    public class CommandBuilder
+    internal class CommandBuilder
     {
         public CommandInfo Command { get; set; }
 

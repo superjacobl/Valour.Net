@@ -10,7 +10,7 @@
           }
         ],
         "dest": "api",
-        "disableGitFeatures": true,
+        "disableGitFeatures": false,
         "disableDefaultFilter": false
       }
     ],
@@ -53,6 +53,6 @@
       "noLangKeyword": false,
       "keepFileLink": false,
       "cleanupCacheHistory": false,
-      "disableGitFeatures": true
+      "disableGitFeatures": false
     }
   }

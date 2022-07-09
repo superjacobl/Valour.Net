@@ -8,7 +8,7 @@ using System.ComponentModel;
 
 namespace Valour.Net.CommandHandling.InfoModels
 {
-    public class EventInfo
+    internal class EventInfo
     {
         public EventType eventType { get; set; }
         public ModuleInfo moduleInfo {get ;set;}

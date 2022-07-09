@@ -8,7 +8,7 @@ using Valour.Net.TypeConverters;
 using Microsoft.Extensions.Configuration;
 namespace Valour.Net.CommandHandling.InfoModels
 {
-    public class CommandInfo
+    internal class CommandInfo
     {
         public string MainAlias { get; set; }
         public List<string> Aliases { get; set; }

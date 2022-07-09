@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Valour.Net.ErrorHandling
 {
-    public class ErrorHandler
+    internal class ErrorHandler
     {
-        public ErrorHandler()
+        internal ErrorHandler()
         {
         }
 
 
-        public static void ReportError(GenericError error)
+        internal static void ReportError(GenericError error)
         {
             Console.WriteLine(error.ToString());
         }

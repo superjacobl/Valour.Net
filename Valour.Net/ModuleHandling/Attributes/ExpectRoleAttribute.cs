@@ -1,6 +1,6 @@
 using System;
 
-namespace Valour.Net.CommandHandling
+namespace Valour.Net.CommandHandling.Attributes
 {
     /// <summary> Theses roles will not be able to run a command. </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]

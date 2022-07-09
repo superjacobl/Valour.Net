@@ -8,7 +8,7 @@ using Valour.Net.CommandHandling.Attributes;
 
 namespace Valour.Net.CommandHandling.Builders
 {
-    public class ParameterBuilder
+    internal class ParameterBuilder
     {
         public ParameterInfo Parameter { get; set; }
         public ParameterBuilder()

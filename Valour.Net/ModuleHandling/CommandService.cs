@@ -7,7 +7,7 @@ using Valour.Net.CommandHandling.InfoModels;
 
 namespace Valour.Net.CommandHandling
 {
-    public static class CommandService
+    internal static class CommandService
     {
         public static List<ModuleInfo> _Modules { get; set; } = new List<ModuleInfo>();
         public static List<CommandInfo> _Commands { get; set; } = new List<CommandInfo>();

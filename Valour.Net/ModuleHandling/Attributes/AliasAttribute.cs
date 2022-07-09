@@ -1,6 +1,6 @@
 using System;
 
-namespace Valour.Net.CommandHandling
+namespace Valour.Net.CommandHandling.Attributes
 {
     /// <summary> Provides aliases for a command. </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]

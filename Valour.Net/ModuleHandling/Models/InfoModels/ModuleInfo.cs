@@ -6,7 +6,7 @@ using Valour.Net.ErrorHandling;
 
 namespace Valour.Net.CommandHandling.InfoModels
 {
-    public class ModuleInfo
+    internal class ModuleInfo
     {
         public string Name { get; set; }
         public List<CommandInfo> Commands { get; set; }

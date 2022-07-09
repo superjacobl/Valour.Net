@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Valour.Net.ModuleHandling.Attributes
+namespace Valour.Net.CommandHandling.Attributes
 {
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
