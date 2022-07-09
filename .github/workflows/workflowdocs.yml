@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 jobs:
   generate-docs:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
@@ -23,13 +23,13 @@ jobs:
         with:
           submodules: recursive
         
-      - name: Setup .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.101
-          
-      - name: Setup DocFX
-        uses: crazy-max/ghaction-chocolatey@v1
+          dotnet-version: 7.0.x
+          include-prerelease: true
+      - uses: nikeee/docfx-action@v1.0.0
+        name: Build Documentation
         with:
           args: docfx/docfx.json
 
