@@ -38,7 +38,7 @@ namespace Valour.Net.Client
 
         internal static IdManager idManager = new();
 
-        internal static string BaseUrl = "https://localhost:3001/";// "https://valour.gg/";
+        public static string BaseUrl = "https://valour.gg/";
 
         /// <summary>
         /// The User Id of your bot.
@@ -366,6 +366,8 @@ namespace Valour.Net.Client
                         args.Clear();
                     try
                     {
+                        ctx.CommandStarted = DateTime.UtcNow;
+                        ctx.Command = command.MainAlias;
                         await InvokeMethod(command.Method, command.moduleInfo.Instance, command.ConvertStringArgs(args, ctx).ToArray());
                         await EventService.AfterCommand(ctx);
                     }
@@ -420,6 +422,7 @@ namespace Valour.Net.Client
         internal static async Task<T> GetData<T>(string url)
         {
             var httpResponse = await httpClient.GetAsync(url);
+
             if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
             {
                 ErrorHandler.ReportError(new GenericError($"Valour is currently unavailable.", ErrorSeverity.FATAL));

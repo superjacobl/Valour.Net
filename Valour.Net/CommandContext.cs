@@ -13,6 +13,15 @@ public class CommandContext
     public TimeSpan MessageTimeTook { get; set; }
     public DateTime TimeReceived { get; set; }
 
+    /// <summary>
+    /// The datetime of when Valour.Net started executing the command's method.
+    /// </summary>
+    public DateTime CommandStarted { get; set; }
+
+    public string? Command { get; set;}
+    
+    public string? Group { get; set; }
+
     public CommandContext() { }
 
     internal async Task Set(PlanetMessage msg)
@@ -37,6 +46,18 @@ public class CommandContext
     public Task ReplyAsync(EmbedBuilder embed)
     {
         return ValourNetClient.PostMessage(Channel.Id, Planet.Id, "", embed.Generate());
+    }
+
+    /// <summary>
+    /// The message will be sent after {delay}ms.
+    /// </summary>
+    /// <param name="delay">Time in ms to delay.</param>
+    /// <param name="data">What the message should say.</param>
+    /// <returns></returns>
+
+    public async Task ReplyWithDelayAsync(int delay, string content) {
+        await Task.Delay(delay);
+        await ValourNetClient.PostMessage(Channel.Id, Planet.Id, content, null);
     }
 
     /// <summary>

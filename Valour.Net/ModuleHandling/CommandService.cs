@@ -29,6 +29,7 @@ namespace Valour.Net.CommandHandling
             foreach (ModuleInfo module in _Modules) {
                 command = await module.GetCommand(commandname, args, ctx);
                 if (command != null) {
+                    ctx.Group = module.GroupName;
                     return command;
                 }
             }
