@@ -10,6 +10,7 @@ namespace Valour.Net.ModuleHandling.Models.InfoModels
 {
     internal class InteractionEventInfo
     {
+        public EmbedIteractionEventType EventType { get; set; }
         public string InteractionName { get; set; }
         public string InteractionID { get; set; }
 

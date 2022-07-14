@@ -50,7 +50,8 @@ namespace Valour.Net.CommandHandling.Builders
             {
                 InteractionEventInfo eventInfo = new();
                 InteractionAttribute EventAttr = (InteractionAttribute)method.GetCustomAttribute(typeof(InteractionAttribute));
-                eventInfo.InteractionName = EventAttr.InteractionName;
+                eventInfo.InteractionName = (EventAttr.InteractionName ?? null);
+                eventInfo.EventType = EventAttr.EventType;
                 eventInfo.InteractionID = (EventAttr.InteractionID ?? null);
                 eventInfo.Method = method;
                 eventInfo.moduleInfo = Module;

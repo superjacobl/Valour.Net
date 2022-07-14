@@ -7,6 +7,8 @@ global using Valour.Shared.Items.Messages.Embeds;
 global using Valour.Api.Items;
 global using Valour.Shared.Items.Authorization;
 global using Valour.Net.Client;
+global using Valour.Api.Items.Messages;
+global using Valour.Net.CommandHandling.Attributes;
 
 //using Microsoft.AspNetCore.SignalR.Client;
 using System;
@@ -252,11 +254,11 @@ namespace Valour.Net.Client
         internal static async Task OnPermissionsNodeUpdate(PermissionsNode node, bool newitem, int flags)
         {
             // try to connect to the channel
-            if (node.TargetType == PermissionsTarget.PlanetChatChannel) {
+            if (node.TargetType == PermissionsTargetType.PlanetChatChannel) {
                 await ValourClient.HubConnection.SendAsync("JoinChannel", node.TargetId, Token);
             }
             // or try to connect to all channels in the category
-            else if (node.TargetType == PermissionsTarget.PlanetCategoryChannel) {
+            else if (node.TargetType == PermissionsTargetType.PlanetCategoryChannel) {
                 var category = await PlanetCategoryChannel.FindAsync(node.TargetId, node.PlanetId);
                 JoinCategory(category);
             }

@@ -13,6 +13,7 @@ namespace Valour.Net.CommandHandling.InfoModels
         public string Summary {get; set;}
         public Type Type { get; set; }
         public Boolean IsRemainder {get; set;}
+        public System.Reflection.ParameterInfo Info { get; set; }
 
 
         public ParameterInfo(string Name, Type Type)

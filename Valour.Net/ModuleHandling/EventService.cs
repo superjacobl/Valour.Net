@@ -54,39 +54,37 @@ internal static class EventService
         }
     }
 
+    internal static async Task ExecuteInteractionFunction(InteractionEventInfo Event, EmbedInteractionEvent IEvent) {
+        object[] args = new object[1];
+        InteractionContext ctx = new();
+        await ctx.SetFromImteractionEvent(IEvent);
+        args[0] = ctx;
+        await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+    }
+
     internal static async Task OnInteraction(EmbedInteractionEvent IEvent)
     {
         if (IEvent.Author_MemberId != (await ValourClient.GetSelfMember(IEvent.PlanetId)).Id) return;
-        if (_InteractionEvents.Any(x => x.InteractionID == IEvent.Element_Id))
+
+        IEnumerable<InteractionEventInfo> eventInfos = _InteractionEvents.Where(x => x.EventType == IEvent.EventType);
+
+        if (eventInfos.Any(x => x.InteractionID == IEvent.Element_Id))
         {
             foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == IEvent.Element_Id))
             {
-                object[] args = new object[1];
-                InteractionContext ctx = new();
-                await ctx.SetFromImteractionEvent(IEvent);
-                args[0] = ctx;
-                bool isAwaitable = Event.Method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) != null;
-                await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+                await ExecuteInteractionFunction(Event, IEvent);
             }
         }
         else
         {
-            foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == ""))
+            foreach (InteractionEventInfo Event in eventInfos.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == null))
             {
-                object[] args = new object[1];
-                InteractionContext ctx = new();
-                await ctx.SetFromImteractionEvent(IEvent);
-                args[0] = ctx;
-                await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+                await ExecuteInteractionFunction(Event, IEvent);
             }
         }
-        foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == "" && x.InteractionID == ""))
+        foreach (InteractionEventInfo Event in eventInfos.Where(x => x.InteractionName == null && x.InteractionID == null))
         {
-            object[] args = new object[1];
-            InteractionContext ctx = new();
-            await ctx.SetFromImteractionEvent(IEvent);
-            args[0] = ctx;
-            await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+            await ExecuteInteractionFunction(Event, IEvent);
         }
     }
 }

@@ -28,6 +28,7 @@ namespace Valour.Net.CommandHandling.Builders
             Parameter = new();
             Parameter.Name = parameterinfo.Name;
             Parameter.Type = parameterinfo.ParameterType;
+            Parameter.Info = parameterinfo;
             foreach (System.Reflection.CustomAttributeData attribute in parameterinfo.CustomAttributes) {
                 if (attribute.AttributeType == typeof(RemainderAttribute)) {
                     Parameter.IsRemainder = true;

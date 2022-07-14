@@ -36,6 +36,25 @@ namespace Valour.Net.CommandHandling.InfoModels
             objects.Add(ctx);
             for (int i = 0; i < Parameters.Count; i++)
             {
+                if (Parameters[i].Info.HasDefaultValue) {
+                    var attribute = (SwitchInputAttribute)Parameters[i].Info.GetCustomAttribute(typeof(SwitchInputAttribute));
+                    if (attribute is not null) {
+                        string name = args.Where(x => x.StartsWith("--")).Select(x => x.Substring(2)).FirstOrDefault(x => x == attribute.SwitchName);
+                        if (name is null) {
+                            objects.Add((bool)Parameters[i].Info.DefaultValue);
+                        }
+                        else {
+                            objects.Add(!(bool)Parameters[i].Info.DefaultValue);
+                        }
+                        continue;
+                    }
+                    else {
+                        if (i > Parameters.Count-1) {
+                            objects.Add(Parameters[i].Info.DefaultValue);
+                            continue;
+                        }
+                    }
+                }
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
                 if (Parameters[i].IsRemainder == false) {
                     PlanetMemberConverter memberconverter = new PlanetMemberConverter();
@@ -71,8 +90,16 @@ namespace Valour.Net.CommandHandling.InfoModels
             if (MainAlias.ToLower() == name.ToLower() || Aliases.Contains(name.ToLower())) {
                 if (args.Count != Parameters.Count) {
                     if (Parameters.Count > 0) {
-                        if (Parameters.Last().IsRemainder == false) {
-                            return false;
+                        int i = args.Count;
+                        foreach(var parameter in Parameters) {
+                            if (parameter.Info.HasDefaultValue) {
+                                i += 1;
+                            }
+                        }
+                        if (i != Parameters.Count) {
+                            if (Parameters.Last().IsRemainder == false) {
+                                return false;
+                            }
                         }
                     }
                     else {
@@ -80,13 +107,17 @@ namespace Valour.Net.CommandHandling.InfoModels
                     }
                     
                 }
-                if (args.Count == 0 && Parameters.Count > 0) {
+
+                if (args.Count == 0 && Parameters.Count > 0 && !Parameters.Any(x => x.Info.HasDefaultValue)) {
                     return false;
                 }
 
                 for (int i = 0; i < Parameters.Count; i++)
                 {
                     try {
+                        if (Parameters[i].Info.HasDefaultValue) {
+                            continue;
+                        }
                         TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
 
                         // check planetmembers
