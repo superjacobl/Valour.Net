@@ -16,7 +16,7 @@ namespace Valour.Net.TypeConverters
         {
             Type sourceType = _object.GetType();
             if (sourceType == typeof(string)) {
-                if (_object.ToString().Length == 20) {
+                if (_object.ToString().Contains("«@m-")) {
                     return true;
                 }
             }

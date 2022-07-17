@@ -29,6 +29,7 @@ using Valour.Shared.Items.Users;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Valour.Api.Items.Authorization;
+using Valour.Net.Client.MessageHelper;
 
 namespace Valour.Net.Client
 {
@@ -40,7 +41,7 @@ namespace Valour.Net.Client
 
         internal static IdManager idManager = new();
 
-        public static string BaseUrl = "https://valour.gg/";
+        public static string BaseUrl = "https://app.valour.gg/";
 
         /// <summary>
         /// The User Id of your bot.
@@ -103,7 +104,8 @@ namespace Valour.Net.Client
             };
             var response = await httpClient.PostAsJsonAsync($"{BaseUrl}api/user/token", content);
 
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            Console.WriteLine($"Url:{BaseUrl}api/user/token");
+            Console.WriteLine($"Output:{await response.Content.ReadAsStringAsync()}");
 
             AuthToken token = JsonSerializer.Deserialize<AuthToken>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions() {PropertyNameCaseInsensitive = true});
 
@@ -303,6 +305,8 @@ namespace Valour.Net.Client
                 JsonSerializerOptions options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
                 message.EmbedData = JsonSerializer.Serialize(embed, options);
             }
+
+            MessageHelpers.GenerateForPost(message);
 
             await ValourClient.SendMessage(message);
 
