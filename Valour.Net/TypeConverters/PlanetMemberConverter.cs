@@ -10,9 +10,9 @@ using Valour.Net.CommandHandling;
 
 namespace Valour.Net.TypeConverters
 {
-    class PlanetMemberConverter
+    public static class PlanetMemberConverter
     {
-        public bool CanConvertFrom(object _object)
+        public static bool CanConvertFrom(object _object)
         {
             Type sourceType = _object.GetType();
             if (sourceType == typeof(string)) {
@@ -23,7 +23,7 @@ namespace Valour.Net.TypeConverters
             return false;
         }
 
-        public object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        public static object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             CommandContext ctx = (context as CommandArgConverterContext).ctx;
             object result = null;
@@ -34,33 +34,28 @@ namespace Valour.Net.TypeConverters
                 {
                     result = PlanetMember.FindAsync(MemberID, ctx.Planet.Id).Result;
                 }
-                else if (stringValue.Substring(0,4) == "«@m-") //input as ping 
-                {
-                    if (long.TryParse(stringValue.Substring(4, 15), out MemberID))
-                    {
+                else if (stringValue.Substring(0,4) == "«@m-") {
+                    string v = stringValue.Replace("«@m-", "");
+                    v = v.Replace("»","");
+                    if (long.TryParse(v, out MemberID)) {
                         result = PlanetMember.FindAsync(MemberID, ctx.Planet.Id).Result;
                     }
                     else
                     {
                         result = null;
                     }
-
                 }
-                else //Input as name
-                {
-                    // need to fix this
-                        //Member member = Member.FindAsync(x => x.Planet_Id == ctx.Planet.Id && x.Nickname.ToLower() == stringValue.ToLower());
-                        //if (member != null)
-                        //{
-                        //    result = member;
-                        //}
                 }
+            else //Input as name
+            {
+                // need to fix this
+                    //Member member = Member.FindAsync(x => x.Planet_Id == ctx.Planet.Id && x.Nickname.ToLower() == stringValue.ToLower());
+                    //if (member != null)
+                    //{
+                    //    result = member;
+                    //}
             }
-           
-
             return result;
         }
     }
-
-    
 }

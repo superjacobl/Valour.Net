@@ -57,9 +57,12 @@ namespace Valour.Net.CommandHandling.InfoModels
                 }
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
                 if (Parameters[i].IsRemainder == false) {
-                    PlanetMemberConverter memberconverter = new PlanetMemberConverter();
-                    if (memberconverter.CanConvertFrom(args[i])) {
-                        objects.Add(memberconverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
+                    if (Parameters[i].Info.HasDefaultValue && i > args.Count-1) {
+                        objects.Add(null);
+                        continue;
+                    }
+                    if (PlanetMemberConverter.CanConvertFrom(args[i])) {
+                        objects.Add(PlanetMemberConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
                     }
                     else
                     {
@@ -121,8 +124,7 @@ namespace Valour.Net.CommandHandling.InfoModels
                         TypeConverter typeConverter = TypeDescriptor.GetConverter(Parameters[i].Type);
 
                         // check planetmembers
-                        PlanetMemberConverter memberconverter = new PlanetMemberConverter();
-                        if (memberconverter.CanConvertFrom(args[i])) {
+                        if (PlanetMemberConverter.CanConvertFrom(args[i])) {
                             Console.WriteLine("HI!");
                         }
                         else 

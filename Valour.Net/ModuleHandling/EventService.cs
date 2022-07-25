@@ -68,21 +68,11 @@ internal static class EventService
 
         IEnumerable<InteractionEventInfo> eventInfos = _InteractionEvents.Where(x => x.EventType == IEvent.EventType);
 
-        if (eventInfos.Any(x => x.InteractionID == IEvent.Element_Id))
-        {
-            foreach (InteractionEventInfo Event in _InteractionEvents.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == IEvent.Element_Id))
-            {
-                await ExecuteInteractionFunction(Event, IEvent);
-            }
-        }
-        else
-        {
-            foreach (InteractionEventInfo Event in eventInfos.Where(x => x.InteractionName == IEvent.Event && x.InteractionID == null))
-            {
-                await ExecuteInteractionFunction(Event, IEvent);
-            }
-        }
-        foreach (InteractionEventInfo Event in eventInfos.Where(x => x.InteractionName == null && x.InteractionID == null))
+        var infos = eventInfos;
+        infos = infos.Where(x => x.InteractionElementId is null || (x.InteractionElementId is not null && x.InteractionElementId == IEvent.ElementId));
+        infos = infos.Where(x => x.InteractionFormId is null || (x.InteractionFormId is not null && x.InteractionFormId == IEvent.FormId));
+
+        foreach (InteractionEventInfo Event in infos)
         {
             await ExecuteInteractionFunction(Event, IEvent);
         }

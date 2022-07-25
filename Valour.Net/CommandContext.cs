@@ -43,9 +43,9 @@ public class CommandContext
         return ValourNetClient.PostMessage(Channel.Id, Planet.Id, content);
     }
 
-    public Task ReplyAsync(EmbedBuilder embed)
+    public Task ReplyAsync(EmbedBuilder embedbuilder)
     {
-        return ValourNetClient.PostMessage(Channel.Id, Planet.Id, "", embed.Generate());
+        return ValourNetClient.PostMessage(Channel.Id, Planet.Id, "", embedbuilder.embed);
     }
 
     /// <summary>

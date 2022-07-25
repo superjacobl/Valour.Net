@@ -6,13 +6,13 @@ namespace Valour.Net.CommandHandling.Attributes
     public class InteractionAttribute : Attribute
     {
         public EmbedIteractionEventType EventType { get; }
-        public string InteractionName { get; }
-        public string InteractionID { get; }
+        public string InteractionFormId { get; }
+        public string InteractionElementId { get; }
 
-        public InteractionAttribute(EmbedIteractionEventType eventType, string interactionName = null, string ElementID = null)
+        public InteractionAttribute(EmbedIteractionEventType eventType, string interactionFormId = null, string interactionElementId = null)
         {
-            InteractionName = InteractionName;
-            InteractionID = ElementID;
+            InteractionFormId = interactionFormId;
+            InteractionElementId = interactionElementId;
             EventType = eventType;
         }
     }

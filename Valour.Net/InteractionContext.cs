@@ -35,9 +35,9 @@ namespace Valour.Net.CommandHandling
             await ValourNetClient.PostMessage(Channel.Id, Planet.Id, content, null);
         }
 
-        public async Task ReplyAsync(EmbedBuilder embed)
+        public async Task ReplyAsync(EmbedBuilder embedbuilder)
         {
-            await ValourNetClient.PostMessage(Channel.Id, Planet.Id, "", embed.Generate());
+            await ValourNetClient.PostMessage(Channel.Id, Planet.Id, "", embedbuilder.embed);
         }
 
         public async Task ReplyWithMessagesAsync(int delay, List<string> data) {
