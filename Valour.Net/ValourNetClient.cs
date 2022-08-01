@@ -246,7 +246,7 @@ namespace Valour.Net.Client
         internal static async Task JoinCategory(PlanetCategoryChannel category) {
             foreach(PlanetChatChannel channel in ValourCache.GetAll<PlanetChatChannel>().Where(x => x.ParentId == category.Id)) 
             {
-                ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
+                ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id);
             }
             foreach(PlanetCategoryChannel _category in ValourCache.GetAll<PlanetCategoryChannel>().Where(x => x.ParentId == category.Id)) 
             {
@@ -278,17 +278,18 @@ namespace Valour.Net.Client
 
         internal static async Task HubConnection_Reconnected(string arg)
         {
+            await ValourClient.AuthenticateSignalR();
             Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values, async _planet => {
                 Planet planet = (Planet)_planet;
-                await ValourClient.HubConnection.SendAsync("JoinPlanet", planet.Id, Token);
+                await ValourClient.HubConnection.SendAsync("JoinPlanet", planet.Id);
 
-                await ValourClient.HubConnection.SendAsync("JoinInteractionGroup", planet.Id, Token);
+                await ValourClient.HubConnection.SendAsync("JoinInteractionGroup", planet.Id);
 
                 var channels = await planet.GetChannelsAsync();
 
                 foreach (PlanetChatChannel channel in channels)
                 {
-                    await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
+                    await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id);
                 }
 
             });
