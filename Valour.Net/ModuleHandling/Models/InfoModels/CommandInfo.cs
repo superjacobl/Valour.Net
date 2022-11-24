@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using Valour.Net.TypeConverters;
-using Microsoft.Extensions.Configuration;
 namespace Valour.Net.CommandHandling.InfoModels
 {
     internal class CommandInfo

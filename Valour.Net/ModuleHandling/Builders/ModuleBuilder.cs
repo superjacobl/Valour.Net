@@ -29,6 +29,7 @@ namespace Valour.Net.CommandHandling.Builders
             CommandModuleBase moduleInstance  = (CommandModuleBase)constructor.Invoke(Array.Empty<object>());
             Module.Instance = moduleInstance;
             Module.Name = module.Name;
+            Module.Groups = new();
 
             foreach (MethodInfo method in module.GetMethods().Where(m => m.GetCustomAttributes(typeof(CommandAttribute), false).Length > 0))
             {
@@ -48,14 +49,16 @@ namespace Valour.Net.CommandHandling.Builders
 
             foreach (MethodInfo method in module.GetMethods().Where(m => m.GetCustomAttributes(typeof(InteractionAttribute), false).Length > 0))
             {
-                InteractionEventInfo eventInfo = new();
-                InteractionAttribute EventAttr = (InteractionAttribute)method.GetCustomAttribute(typeof(InteractionAttribute));
-                eventInfo.InteractionElementId = EventAttr.InteractionElementId;
-                eventInfo.EventType = EventAttr.EventType;
-                eventInfo.InteractionFormId = EventAttr.InteractionFormId;
-                eventInfo.Method = method;
-                eventInfo.moduleInfo = Module;
-                EventService._InteractionEvents.Add(eventInfo);
+                foreach (var EventAttr in (IEnumerable<InteractionAttribute>)method.GetCustomAttributes(typeof(InteractionAttribute)))
+                {
+                    InteractionEventInfo eventInfo = new();
+                    eventInfo.InteractionElementId = EventAttr.InteractionElementId;
+                    eventInfo.EventType = EventAttr.EventType;
+                    eventInfo.InteractionFormId = EventAttr.InteractionFormId;
+                    eventInfo.Method = method;
+                    eventInfo.moduleInfo = Module;
+                    EventService._InteractionEvents.Add(eventInfo);
+                }
             }
 
         }

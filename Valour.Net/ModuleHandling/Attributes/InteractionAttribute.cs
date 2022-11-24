@@ -2,7 +2,7 @@
 
 namespace Valour.Net.CommandHandling.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
     public class InteractionAttribute : Attribute
     {
         public EmbedIteractionEventType EventType { get; }

@@ -11,7 +11,9 @@ public enum EventType
 {
     Message,
     Interaction,
-    AfterCommand
+    AfterCommand,
+    FriendRequest,
+    OnChannelWatching
 }
 
 internal static class EventService
@@ -35,6 +37,15 @@ internal static class EventService
         }
     }
 
+    internal static async Task OnChannelWatching(ChannelWatchingContext ctx)
+    {
+        foreach(EventInfo Event in _Events.Where(x => x.eventType == EventType.OnChannelWatching)) {
+            object[] args = new object[1];
+            args[0] = ctx;
+            await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+        }
+    }
+
     internal static async Task OnMessage(CommandContext ctx)
     {
         foreach(EventInfo Event in _Events.Where(x => x.eventType == EventType.Message)) {
@@ -54,10 +65,8 @@ internal static class EventService
         }
     }
 
-    internal static async Task ExecuteInteractionFunction(InteractionEventInfo Event, EmbedInteractionEvent IEvent) {
+    internal static async Task ExecuteInteractionFunction(InteractionEventInfo Event, InteractionContext ctx) {
         object[] args = new object[1];
-        InteractionContext ctx = new();
-        await ctx.SetFromImteractionEvent(IEvent);
         args[0] = ctx;
         await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
     }
@@ -68,13 +77,18 @@ internal static class EventService
 
         IEnumerable<InteractionEventInfo> eventInfos = _InteractionEvents.Where(x => x.EventType == IEvent.EventType);
 
+        InteractionContext ctx = new();
+        await ctx.SetFromImteractionEvent(IEvent);
+
+        await EmbedMenuManager.ProcessInteraction(ctx);
+
         var infos = eventInfos;
         infos = infos.Where(x => x.InteractionElementId is null || (x.InteractionElementId is not null && x.InteractionElementId == IEvent.ElementId));
         infos = infos.Where(x => x.InteractionFormId is null || (x.InteractionFormId is not null && x.InteractionFormId == IEvent.FormId));
 
         foreach (InteractionEventInfo Event in infos)
         {
-            await ExecuteInteractionFunction(Event, IEvent);
+            await ExecuteInteractionFunction(Event, ctx);
         }
     }
 }

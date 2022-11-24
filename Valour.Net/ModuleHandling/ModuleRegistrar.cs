@@ -35,6 +35,7 @@ namespace Valour.Net.CommandHandling
             foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
             {
                 ModuleBuilder builder = new();
+
                 //Check for command group attribute
                 GroupAttribute GroupAttr = (GroupAttribute)commandModule.GetCustomAttribute(typeof(GroupAttribute));
                 if (GroupAttr != null) {
@@ -52,6 +53,19 @@ namespace Valour.Net.CommandHandling
 
                 CommandService.RegisterModule(builder.Module);
 
+            }
+
+            // run check for subgroups
+
+            return;
+            foreach (Type commandModule in moudules.Where(x => x.BaseType == typeof(CommandModuleBase)))
+            {
+                foreach (TypeInfo type in commandModule.GetNestedTypes().Where(m => m.GetCustomAttributes(typeof(GroupAttribute), false).Length > 0))
+                {
+                    var module = CommandService._Modules.First(x => x.Name == type.Name);
+                    CommandService._Modules.First(x => x.Name == commandModule.Name).Groups.Add(module);
+                    CommandService._Modules.Remove(module);
+                }
             }
 
         }

@@ -10,14 +10,16 @@ namespace Valour.Net.CommandHandling.InfoModels
     {
         public string Name { get; set; }
         public List<CommandInfo> Commands { get; set; }
+        public List<ModuleInfo> Groups { get; set; }
         public List<Attribute> Attributes { get; set; }
         public CommandModuleBase Instance { get; set; }
         public string GroupName = "";
 
-        public ModuleInfo(string Name, List<CommandInfo> Commands, List<Attribute> Attributes, CommandModuleBase Instance)
+        public ModuleInfo(string Name, List<CommandInfo> Commands, List<Attribute> Attributes, CommandModuleBase Instance, List<ModuleInfo> Groups)
         {
             this.Name = Name;
             this.Commands = Commands;
+            this.Groups = Groups;
             this.Attributes = Attributes;
             this.Instance = Instance;
         }
@@ -43,7 +45,24 @@ namespace Valour.Net.CommandHandling.InfoModels
 
                     // args[0] should be the command prefix
 
-                    if (GroupName == commandname) {
+                    ModuleInfo? subgroup = Groups.FirstOrDefault(x => x.GroupName == args[0]);
+                    if (GroupName == commandname && subgroup is not null) {
+                        if (subgroup.GroupName == args[0])
+                        {
+                            args.RemoveAt(0);
+                            string subcommandname = args[0];
+                            args.RemoveAt(0);
+                            foreach (CommandInfo command in subgroup.Commands)
+                            {
+                                if (await command.CheckIfCommand(subcommandname, args, ctx))
+                                {
+                                    return command;
+                                }
+                            }
+                        }
+                    }
+
+                    else if (GroupName == commandname) {
                         string subcommandname = args[0];
                         args.RemoveAt(0);
                         foreach (CommandInfo command in Commands) {

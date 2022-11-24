@@ -1,6 +1,6 @@
 ﻿global using Valour.Api.Items.Planets;
 global using Valour.Api.Items.Planets.Members;
-global using Valour.Api.Items.Planets.Channels;
+global using Valour.Api.Items.Channels.Planets;
 global using Valour.Api.Items.Messages;
 global using Valour.Api.Items.Users;
 global using Valour.Api.Items.Messages.Embeds;
@@ -10,17 +10,21 @@ global using Valour.Shared.Items.Authorization;
 global using Valour.Net.Client;
 global using Valour.Api.Items.Messages;
 global using Valour.Net.CommandHandling.Attributes;
+global using Valour.Net.EmbedMenu;
+global using Valour.Api.Nodes;
+global using Valour.Shared;
+global using Valour.Shared.Channels;
+global using Valour.Api.Client;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Net.Http;
+global using System.Net.Http.Json;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+global using System.Threading.Tasks;
 
 //using Microsoft.AspNetCore.SignalR.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Valour.Api.Client;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ErrorHandling;
@@ -103,6 +107,7 @@ namespace Valour.Net.Client
                 Email = email,
                 Password = password
             };
+            
             var response = await httpClient.PostAsJsonAsync($"{BaseUrl}api/user/token", content);
 
             Console.WriteLine($"Url:{BaseUrl}api/user/token");
@@ -173,17 +178,18 @@ namespace Valour.Net.Client
 
             ValourClient.OnLogin += async () => { };
             ValourClient.OnJoinedPlanetsUpdate += async () => { };
-
-            ValourClient.SetHttpClient(new HttpClient
-            {
-                BaseAddress = new Uri(BaseUrl)
-            });
+            ValourClient.OnMessageDeleted += async (m) => { };
+            ValourClient.OnUserChannelStateUpdate += async(m) => { };
+            ValourClient.OnChannelWatchingUpdate += async(m) => {
+                ChannelWatchingContext ctx = new();
+                ctx.Set(m);
+                await EventService.OnChannelWatching(ctx);
+            };
+            ValourClient.OnFriendsUpdate += async () => { };
 
             Token = await RequestTokenAsync(email, password);
             if (Token == null) //Token returned null meaning valour is unavailable
                 return;
-
-            await ValourClient.InitializeSignalR(BaseUrl+"planethub");
 
             // set up signar stuff
         
@@ -191,13 +197,18 @@ namespace Valour.Net.Client
 
             ModuleRegistrar.RegisterAllCommands();
 
-            Console.WriteLine("Connecting to Valour");
+            Console.WriteLine("Grabbing Bot's User info & logging in");
 
-            httpClient.DefaultRequestHeaders.Add("authorization", Token);
+            ValourClient.BaseAddress = BaseUrl;
+
+            ValourClient.SetHttpClient(new HttpClient()
+            {
+                BaseAddress = new Uri(BaseUrl)
+            });
 
             await ValourClient.InitializeUser(Token);
 
-            Planet _planet = (Planet)ValourCache.HCache[typeof(Planet)].Values.First();
+            //Planet _planet = (Planet)ValourCache.HCache[typeof(Planet)].Values.First();
 
             BotId = ValourClient.Self.Id;
 
@@ -222,8 +233,8 @@ namespace Valour.Net.Client
 
             Console.WriteLine("Loaded All Planet Data & Channel Data into Cache");
 
-            ValourClient.HubConnection.Reconnected += HubConnection_Reconnected;
-            ValourClient.OnMessageRecieved += async (PlanetMessage msg) =>
+            ValourClient.OnNodeReconnect += HubConnection_Reconnected;
+            ValourClient.OnMessageRecieved += async (Message msg) =>
             {
                 if (ExecuteMessagesInParallel)
                 {
@@ -234,7 +245,6 @@ namespace Valour.Net.Client
                     await OnRelay(msg);
                 }
             };
-            ValourClient.HubConnection.On<EmbedInteractionEvent>("InteractionEvent", OnInteractionEvent);
 
             ItemObserver<PlanetChatChannel>.OnAnyUpdated += OnChannelUpdate;
 
@@ -246,7 +256,8 @@ namespace Valour.Net.Client
         internal static async Task JoinCategory(PlanetCategoryChannel category) {
             foreach(PlanetChatChannel channel in ValourCache.GetAll<PlanetChatChannel>().Where(x => x.ParentId == category.Id)) 
             {
-                ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id);
+                var servernode = await NodeManager.GetNodeForPlanetAsync(category.PlanetId);
+                await servernode.HubConnection.SendAsync("JoinChannel", channel.Id);
             }
             foreach(PlanetCategoryChannel _category in ValourCache.GetAll<PlanetCategoryChannel>().Where(x => x.ParentId == category.Id)) 
             {
@@ -254,11 +265,13 @@ namespace Valour.Net.Client
             }
         }
 
+        // this does not work???
         internal static async Task OnPermissionsNodeUpdate(PermissionsNode node, bool newitem, int flags)
         {
             // try to connect to the channel
             if (node.TargetType == PermissionsTargetType.PlanetChatChannel) {
-                await ValourClient.HubConnection.SendAsync("JoinChannel", node.TargetId, Token);
+                var servernode = await NodeManager.GetNodeForPlanetAsync(node.PlanetId);
+                await servernode.HubConnection.SendAsync("JoinChannel", node.TargetId, Token);
             }
             // or try to connect to all channels in the category
             else if (node.TargetType == PermissionsTargetType.PlanetCategoryChannel) {
@@ -270,26 +283,42 @@ namespace Valour.Net.Client
         internal static async Task OnChannelUpdate(PlanetChatChannel channel, bool newitem, int flags) 
         {
             if (newitem) {
+                var node = await NodeManager.GetNodeForPlanetAsync(channel.PlanetId);
                 // send JoinChannel to hub so we can get messages from the new channel
-                await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
+                await node.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
             }
         }
 
 
-        internal static async Task HubConnection_Reconnected(string arg)
+        internal static async Task HubConnection_Reconnected(Node _node)
         {
-            await ValourClient.AuthenticateSignalR();
-            Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values, async _planet => {
+            List<string> DidNodeNames = new();
+            // Joins SignalR groups
+            var options = new ParallelOptions { MaxDegreeOfParallelism = 10 };
+            await Parallel.ForEachAsync(ValourCache.HCache[typeof(Planet)].Values, async (_planet, token) => 
+            {
                 Planet planet = (Planet)_planet;
-                await ValourClient.HubConnection.SendAsync("JoinPlanet", planet.Id);
 
-                await ValourClient.HubConnection.SendAsync("JoinInteractionGroup", planet.Id);
+                var node = await NodeManager.GetNodeForPlanetAsync(planet.Id);
+                await node.AuthenticateSignalR();
+                await node.ConnectToUserSignalRChannel();
+                var result = await node.HubConnection.InvokeAsync<TaskResult>("JoinPlanet", planet.Id);
+
+                Console.WriteLine($"Connected to planet: {planet.Name}");
+
+                await node.HubConnection.SendAsync("JoinInteractionGroup", planet.Id);
+
+                if (!DidNodeNames.Contains(node.Name)) {
+                    node.HubConnection.Remove("InteractionEvent");
+                    node.HubConnection.On<EmbedInteractionEvent>("InteractionEvent", OnInteractionEvent);
+                    DidNodeNames.Add(node.Name);
+                }
 
                 var channels = await planet.GetChannelsAsync();
 
                 foreach (PlanetChatChannel channel in channels)
                 {
-                    await ValourClient.HubConnection.SendAsync("JoinChannel", channel.Id);
+                    await node.HubConnection.SendAsync("JoinChannel", channel.Id);
                 }
 
             });
@@ -321,10 +350,12 @@ namespace Valour.Net.Client
             await EventService.OnInteraction(interactionEvent);
         }
 
-
-
-        internal static async Task OnRelay(PlanetMessage message)
+        internal static async Task OnRelay(Message _message)
         {
+
+            // for now there is no DM handling
+
+            PlanetMessage message = (PlanetMessage)_message;
             CommandContext ctx = new()
             {
                 TimeReceived = DateTime.UtcNow,
@@ -385,67 +416,6 @@ namespace Valour.Net.Client
                     }
                 }
             }
-        }
-
-        internal static async Task<ValourResponse<T>> GetResponse<T>(string url)
-        {
-            var httpResponse = await httpClient.GetAsync(url);
-            if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
-            {
-                ErrorHandler.ReportError(new GenericError($"Valour is currently unavailable.", ErrorSeverity.FATAL));
-                return default;
-            }
-            ValourResponse<T> response = JsonSerializer.Deserialize<ValourResponse<T>>(await httpResponse.Content.ReadAsStringAsync());
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                throw new GenericError(
-                    $"Requesting Data from {url} failed with a status code of {httpResponse.StatusCode} with message {response.Message}",
-                    ErrorSeverity.WARN);
-            }
-
-            return response;
-        }
-
-        internal static async Task<T> PostData<T>(string url, Dictionary<T, T> data)
-        {
-            var httpResponse = await httpClient.PostAsJsonAsync(url, data);
-            if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
-            {
-                ErrorHandler.ReportError(new GenericError($"Valour is currently unavailable.", ErrorSeverity.FATAL));
-                return default;
-            }
-            ValourResponse<T> response = JsonSerializer.Deserialize<ValourResponse<T>>(await httpResponse.Content.ReadAsStringAsync());
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                throw new GenericError(
-                    $"Requesting Data from {url} failed with a status code of {httpResponse.StatusCode} with message {response.Message}",
-                    ErrorSeverity.WARN);
-            }
-
-            return response.Data;
-        }
-
-        internal static async Task<T> GetData<T>(string url)
-        {
-            var httpResponse = await httpClient.GetAsync(url);
-
-            if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadGateway)
-            {
-                ErrorHandler.ReportError(new GenericError($"Valour is currently unavailable.", ErrorSeverity.FATAL));
-                return default;
-            }
-            ValourResponse<T> response = JsonSerializer.Deserialize<ValourResponse<T>>(await httpResponse.Content.ReadAsStringAsync());
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                throw new GenericError(
-                    $"Requesting Data from {url} failed with a status code of {httpResponse.StatusCode} with message {response.Message}",
-                    ErrorSeverity.WARN);
-            }
-
-            return response.Data;
         }
 
     }
