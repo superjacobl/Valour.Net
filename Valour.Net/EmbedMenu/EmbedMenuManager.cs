@@ -11,7 +11,7 @@ internal static class EmbedMenuManager
 {
     internal static Dictionary<string, Func<InteractionContext, ValueTask>> ElementIdsToFuncs = new();
 
-    public static async ValueTask ProcessInteraction(InteractionContext ctx)
+	public static async ValueTask ProcessInteraction(InteractionContext ctx)
     {
         if (ctx.Event.ElementId is null)
         {

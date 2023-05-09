@@ -1,4 +1,3 @@
-using Valour.Shared.Items.Messages.Mentions;
 using Markdig.Helpers;
 using System.Text.Json;
 using Valour.Net.Client.MarkdownStuff;

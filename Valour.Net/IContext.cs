@@ -7,8 +7,6 @@ using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Collections.Concurrent;
 using Valour.Net;
-using Valour.Api.Items.Messages.Embeds;
-using Valour.Api.Items.Users;
 using Valour.Api.Client;
 using System.Text.Json;
 
@@ -19,6 +17,11 @@ public abstract class IContext
     public Planet Planet { get; set;}
     public PlanetChatChannel Channel { get; set;}
     public PlanetMember Member { get; set;}
+
+    /// <summary>
+    /// Mainly used for EventFilters
+    /// </summary>
+    public Dictionary<string, object> Items { get; set; } = new();
 
     /// <summary>
     /// Sends a message in the same channel as the Command was executed in.

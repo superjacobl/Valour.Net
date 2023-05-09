@@ -1,14 +1,8 @@
-﻿global using Valour.Api.Items.Planets;
-global using Valour.Api.Items.Planets.Members;
-global using Valour.Api.Items.Channels.Planets;
-global using Valour.Api.Items.Messages;
-global using Valour.Api.Items.Users;
-global using Valour.Api.Items.Messages.Embeds;
-global using Valour.Api.Items.Messages.Embeds.Items;
+﻿global using Valour.Api.Models;
 global using Valour.Api.Items;
-global using Valour.Shared.Items.Authorization;
+global using Valour.Shared.Models;
 global using Valour.Net.Client;
-global using Valour.Api.Items.Messages;
+global using Valour.Api.Models.Messages;
 global using Valour.Net.CommandHandling.Attributes;
 global using Valour.Net.EmbedMenu;
 global using Valour.Api.Nodes;
@@ -23,6 +17,7 @@ global using System.Net.Http.Json;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Threading.Tasks;
+global using Valour.Api.Models.Messages.Embeds;
 
 //using Microsoft.AspNetCore.SignalR.Client;
 using Valour.Net.CommandHandling;
@@ -30,11 +25,15 @@ using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ErrorHandling;
 using IdGen;
 using Microsoft.AspNetCore.SignalR.Client;
-using Valour.Shared.Items.Users;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Valour.Api.Items.Authorization;
 using Valour.Net.Client.MessageHelper;
+using System.Xml.Linq;
+using System.Threading;
+using System.Collections.Concurrent;
+using Valour.Net.ModuleHandling.Models.InfoModels;
+using Valour.Net.CustomAttributes;
+using System.Numerics;
 
 namespace Valour.Net.Client
 {
@@ -55,16 +54,21 @@ namespace Valour.Net.Client
 
         public static List<string> BotPrefixList = new();
 
+        //internal static ConcurrentDictionary<long, PlanetTransaction> ProcessedTransactions = new();
+
+        /// <summary>
+        /// If true, your bot will receive planet transactions and will enable other economic features
+        /// </summary>
+        public static bool EnablePlanetEconomies = false;
+
         /// <summary>
         /// If true, your bot will not receive messages, nor will it send messages
         /// </summary>
-        
         public static bool UnitTesting = false;
 
         /// <summary>
         /// If true, your bot will respond to itself.
-        /// </summary>
-
+        /// </summary
         public static bool DisallowSelfRespond = true;
 
         /// <summary>
@@ -79,16 +83,51 @@ namespace Valour.Net.Client
         /// </summary>
         public static bool ExecuteMessagesInParallel = false;
 
-        internal static async ValueTask InvokeMethod(MethodInfo methodInfo, CommandModuleBase instance, object[] args)
+        /// <summary>
+        /// If true, interactions will be executed in parallel.
+        /// Please note, if you use a database be sure to prevent two threads from executing something at the same time on a single database context.
+        /// </summary>
+        public static bool ExecuteInteractionsInParallel = false;
+
+        /// <summary>
+        /// If true, planet transactions will be executed in parallel. Events for planet transactions will also be handled in parallel. 
+        /// Please note, if you use a database, be sure to prevent two threads from executing something at the same time on a single database context.
+        /// </summary>
+        public static bool ExecuteTransactionsInParallel = false;
+
+        internal static readonly ServiceCollection _serviceCollection = new();
+        internal static IServiceProvider? _appServices;
+
+        public static IServiceCollection Services => _serviceCollection;
+
+        internal static async ValueTask InvokeMethod(ValourMethodInfo valourMethodInfo, CommandModuleBase instance, object[] args)
         {
             //methodInfo.ReturnType.GetMethod(nameof(Task.GetAwaiter));
-            if (methodInfo.ReturnType == typeof(Task) || methodInfo.ReturnType == typeof(ValueTask))
+            if (valourMethodInfo.eventFilterAttributes is not null && valourMethodInfo.eventFilterAttributes.Count > 0)
             {
-                await (Task)methodInfo.Invoke(instance, args);
+                foreach (var filterattr in valourMethodInfo.eventFilterAttributes)
+                {
+                    var filter = filterattr.eventFilter;
+                    EventFilterInvocationContext context = new()
+                    {
+                        Context = (IContext)args[0],
+                        Arguments = args
+                    };
+                    var result = await filter.InvokeAsync(context);
+                    if (result is Task || result is ValueTask)
+                    {
+                        await (Task)result;
+                        return;
+                    }
+                }
+            }
+            if (valourMethodInfo.methodInfo.ReturnType == typeof(Task) || valourMethodInfo.methodInfo.ReturnType == typeof(ValueTask))
+            {
+                await (Task)valourMethodInfo.methodInfo.Invoke(instance, args);
             }
             else
             {
-                methodInfo.Invoke(instance, args);
+                valourMethodInfo.methodInfo.Invoke(instance, args);
             }
         }
 
@@ -108,9 +147,9 @@ namespace Valour.Net.Client
                 Password = password
             };
             
-            var response = await httpClient.PostAsJsonAsync($"{BaseUrl}api/user/token", content);
+            var response = await httpClient.PostAsJsonAsync($"{BaseUrl}api/users/token", content);
 
-            Console.WriteLine($"Url:{BaseUrl}api/user/token");
+            Console.WriteLine($"Url:{BaseUrl}api/users/token");
             Console.WriteLine($"Output:{await response.Content.ReadAsStringAsync()}");
 
             AuthToken token = JsonSerializer.Deserialize<AuthToken>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions() {PropertyNameCaseInsensitive = true});
@@ -182,14 +221,12 @@ namespace Valour.Net.Client
             ValourClient.OnUserChannelStateUpdate += async(m) => { };
             ValourClient.OnChannelWatchingUpdate += async(m) => {
                 ChannelWatchingContext ctx = new();
-                ctx.Set(m);
+                await ctx.Set(m);
                 await EventService.OnChannelWatching(ctx);
             };
             ValourClient.OnFriendsUpdate += async () => { };
 
-            Token = await RequestTokenAsync(email, password);
-            if (Token == null) //Token returned null meaning valour is unavailable
-                return;
+			ValourClient.BaseAddress = BaseUrl;
 
             // set up signar stuff
         
@@ -199,39 +236,61 @@ namespace Valour.Net.Client
 
             Console.WriteLine("Grabbing Bot's User info & logging in");
 
-            ValourClient.BaseAddress = BaseUrl;
-
-            ValourClient.SetHttpClient(new HttpClient()
+            var client = new HttpClient()
             {
                 BaseAddress = new Uri(BaseUrl)
-            });
+            };
 
-            await ValourClient.InitializeUser(Token);
+			ValourClient.SetHttpClient(client);
 
-            //Planet _planet = (Planet)ValourCache.HCache[typeof(Planet)].Values.First();
+            Token = (await ValourClient.GetToken(email, password)).Data;
+            if (Token == null) //Token returned null meaning valour is unavailable
+                return;
+
+			await ValourClient.InitializeUser(Token);
 
             BotId = ValourClient.Self.Id;
 
-            Console.WriteLine("Loading up channels");
+            Console.WriteLine("Loading all node data");
 
-            // load up channels, members, role
-            //
-            // VERY BROKEN
+            foreach (var _planet in ValourCache.HCache[typeof(Planet)].Values.ToList())
+            {
+                var planet = (Planet)_planet;
+                if (NodeManager.NameToNode.ContainsKey("debug-node"))
+                    planet.NodeName = "debug-node";
 
-            //await Task.Run(() => Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values, async _planet =>
-           // {
-            //    planet = (Planet)_planet;
-            //    await planet.LoadChannelsAsync();
-           //     await planet.LoadCategoriesAsync();
-          //      await planet.LoadMemberDataAsync();
-           //     await planet.LoadRolesAsync();
-          //  }));
+                if (!NodeManager.NameToNode.ContainsKey(planet.NodeName))
+                {
+                    var node = new Node();
+                    await node.InitializeAsync(planet.NodeName, ValourClient.Token);
+                }
+            }
 
-            Console.WriteLine("Joining Planets & Channels");
+            Console.WriteLine("Loading data into cache");
 
-            await HubConnection_Reconnected(null);
+            await Task.Run(() => Parallel.ForEach(ValourCache.HCache[typeof(Planet)].Values.ToList(), async _planet =>
+            {
+				var planet = (Planet)_planet;
+				Console.WriteLine($"Loading: {planet.Name}");
+				await planet.LoadRolesAsync();
+				await planet.LoadMemberDataAsync();
+				await planet.LoadChannelsAsync();
+                await planet.LoadCategoriesAsync();
+                //if (EnablePlanetEconomies)
+                    //await planet.LoadCurrencyAccountsAsync();
+                await Task.Delay(10);
+            }));
 
-            Console.WriteLine("Loaded All Planet Data & Channel Data into Cache");
+			Console.WriteLine("Loaded All Planet Data & Channel Data into Cache");
+
+			Console.WriteLine("Joining Planets & Channels");
+
+            foreach (var node in NodeManager.Nodes)
+            {
+                await HubConnection_Reconnected(node);
+            }
+
+            Console.WriteLine("Done Joining Planets & Channels");
 
             ValourClient.OnNodeReconnect += HubConnection_Reconnected;
             ValourClient.OnMessageRecieved += async (Message msg) =>
@@ -246,6 +305,18 @@ namespace Valour.Net.Client
                 }
             };
 
+            //ValourClient.OnTransactionRecieved += async (PlanetTransaction transaction) =>
+            //{
+            //    if (ExecuteTransactionsInParallel)
+           //     {
+            //        OnTransactionRelay(transaction);
+           //     }
+           //     else
+           //     {
+          //          await OnTransactionRelay(transaction);
+           //     }
+          // };
+
             ItemObserver<PlanetChatChannel>.OnAnyUpdated += OnChannelUpdate;
 
             ItemObserver<PermissionsNode>.OnAnyUpdated += OnPermissionsNodeUpdate;
@@ -253,29 +324,28 @@ namespace Valour.Net.Client
             Console.WriteLine("\n\r-----Ready-----\n\r");
         }
 
-        internal static async Task JoinCategory(PlanetCategoryChannel category) {
+        internal static async Task JoinCategory(PlanetCategory category) {
             foreach(PlanetChatChannel channel in ValourCache.GetAll<PlanetChatChannel>().Where(x => x.ParentId == category.Id)) 
             {
                 var servernode = await NodeManager.GetNodeForPlanetAsync(category.PlanetId);
                 await servernode.HubConnection.SendAsync("JoinChannel", channel.Id);
             }
-            foreach(PlanetCategoryChannel _category in ValourCache.GetAll<PlanetCategoryChannel>().Where(x => x.ParentId == category.Id)) 
+            foreach(PlanetCategory _category in ValourCache.GetAll<PlanetCategory>().Where(x => x.ParentId == category.Id)) 
             {
                 JoinCategory(_category);
             }
         }
 
-        // this does not work???
         internal static async Task OnPermissionsNodeUpdate(PermissionsNode node, bool newitem, int flags)
         {
             // try to connect to the channel
-            if (node.TargetType == PermissionsTargetType.PlanetChatChannel) {
+            if (node.TargetType == PermChannelType.PlanetChatChannel) {
                 var servernode = await NodeManager.GetNodeForPlanetAsync(node.PlanetId);
                 await servernode.HubConnection.SendAsync("JoinChannel", node.TargetId, Token);
             }
             // or try to connect to all channels in the category
-            else if (node.TargetType == PermissionsTargetType.PlanetCategoryChannel) {
-                var category = await PlanetCategoryChannel.FindAsync(node.TargetId, node.PlanetId);
+            else if (node.TargetType == PermChannelType.PlanetCategoryChannel) {
+                var category = await PlanetCategory.FindAsync(node.TargetId, node.PlanetId);
                 JoinCategory(category);
             }
         }
@@ -285,36 +355,32 @@ namespace Valour.Net.Client
             if (newitem) {
                 var node = await NodeManager.GetNodeForPlanetAsync(channel.PlanetId);
                 // send JoinChannel to hub so we can get messages from the new channel
-                await node.HubConnection.SendAsync("JoinChannel", channel.Id, Token);
+                await node.HubConnection.SendAsync("JoinChannel", channel.Id);
             }
         }
 
 
-        internal static async Task HubConnection_Reconnected(Node _node)
+        internal static async Task HubConnection_Reconnected(Node node)
         {
-            List<string> DidNodeNames = new();
             // Joins SignalR groups
             var options = new ParallelOptions { MaxDegreeOfParallelism = 10 };
-            await Parallel.ForEachAsync(ValourCache.HCache[typeof(Planet)].Values, async (_planet, token) => 
+            var planets = ValourCache.HCache[typeof(Planet)].Values.Select(x => (Planet)x).Where(x => x.NodeName == node.Name).ToList();
+            await Parallel.ForEachAsync(planets, async (planet, token) => 
             {
-                Planet planet = (Planet)_planet;
-
-                var node = await NodeManager.GetNodeForPlanetAsync(planet.Id);
-                await node.AuthenticateSignalR();
-                await node.ConnectToUserSignalRChannel();
                 var result = await node.HubConnection.InvokeAsync<TaskResult>("JoinPlanet", planet.Id);
 
-                Console.WriteLine($"Connected to planet: {planet.Name}");
+                Console.WriteLine($"Connected to planet: {planet.Name} (node: {planet.NodeName})");
 
                 await node.HubConnection.SendAsync("JoinInteractionGroup", planet.Id);
+                
+                if (EnablePlanetEconomies)
+                    await node.HubConnection.SendAsync("JoinPlanetTransactions", planet.Id);
 
-                if (!DidNodeNames.Contains(node.Name)) {
-                    node.HubConnection.Remove("InteractionEvent");
-                    node.HubConnection.On<EmbedInteractionEvent>("InteractionEvent", OnInteractionEvent);
-                    DidNodeNames.Add(node.Name);
-                }
-
+                node.HubConnection.Remove("InteractionEvent");
+                node.HubConnection.On<EmbedInteractionEvent>("InteractionEvent", OnInteractionEvent);
+                
                 var channels = await planet.GetChannelsAsync();
+
 
                 foreach (PlanetChatChannel channel in channels)
                 {
@@ -323,6 +389,29 @@ namespace Valour.Net.Client
 
             });
         }
+
+        //internal static async Task OnTransactionRelay(PlanetTransaction transaction)
+       // {
+          //  ProcessedTransactions[transaction.Id] = transaction;
+          //  var trans = ProcessedTransactions.Values.Where(x => x.Executed.AddMinutes(1) < DateTime.UtcNow);
+          //  foreach(var tran in trans)
+           //     ProcessedTransactions.Remove(tran.Id, out _);
+
+           // if (!transaction.Result.Value.Success)
+          //     return;
+
+            //PlanetCurrencyAccount fromAccount = await PlanetCurrencyAccount.FindAsync(transaction.FromId);
+           // PlanetCurrencyAccount toAccount = await PlanetCurrencyAccount.FindAsync(transaction.ToId);
+            //fromAccount.Balance -= transaction.Amount;
+            //toAccount.Balance += transaction.Amount;
+
+            //PlanetMessage message = (PlanetMessage)_message;
+            //CommandContext ctx = new()
+           // {
+           //    TimeReceived = DateTime.UtcNow,
+            //    MessageTimeTook = DateTime.UtcNow - message.TimeSent
+           // };
+       // }
 
         public static async Task PostMessage(long channelid, long planetid, string msg, Embed embed = null)
         {
@@ -347,8 +436,22 @@ namespace Valour.Net.Client
         internal static async Task OnInteractionEvent(EmbedInteractionEvent interactionEvent)
         {
             Console.WriteLine("TEST");
-            await EventService.OnInteraction(interactionEvent);
+            if (ExecuteInteractionsInParallel)
+                EventService.OnInteraction(interactionEvent);
+            else
+                await EventService.OnInteraction(interactionEvent);
         }
+
+       // public static async Task<PlanetTransaction> SendTransactionRequestAsync(PlanetTransactionRequest request)
+       // {
+       //     var result = await request.SendAsync();
+
+       //     while (!ValourNetClient.ProcessedTransactions.ContainsKey(result.Data)) 
+       //         await Task.Delay(10);
+
+       //     ValourNetClient.ProcessedTransactions.Remove(result.Data, out var transaction);
+       //     return transaction;
+       // }
 
         internal static async Task OnRelay(Message _message)
         {

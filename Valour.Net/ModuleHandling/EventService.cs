@@ -33,7 +33,7 @@ internal static class EventService
             object[] args = new object[2];
             args[0] = ctx;
             args[1] = command.MainAlias;
-            Event.Method.Invoke(Event.moduleInfo.Instance, args);
+            Event.Method.methodInfo.Invoke(Event.moduleInfo.Instance, args);
         }
     }
 
@@ -74,11 +74,18 @@ internal static class EventService
     internal static async Task OnInteraction(EmbedInteractionEvent IEvent)
     {
         if (IEvent.Author_MemberId != (await ValourClient.GetSelfMember(IEvent.PlanetId)).Id) return;
-
-        IEnumerable<InteractionEventInfo> eventInfos = _InteractionEvents.Where(x => x.EventType == IEvent.EventType);
+		
+		IEnumerable<InteractionEventInfo> eventInfos = _InteractionEvents.Where(x => x.EventType == IEvent.EventType);
 
         InteractionContext ctx = new();
         await ctx.SetFromImteractionEvent(IEvent);
+
+        foreach (EventInfo Event in _Events.Where(x => x.eventType == EventType.Interaction))
+		{
+			object[] args = new object[1];
+			args[0] = ctx;
+			await ValourNetClient.InvokeMethod(Event.Method, Event.moduleInfo.Instance, args);
+		}
 
         await EmbedMenuManager.ProcessInteraction(ctx);
 

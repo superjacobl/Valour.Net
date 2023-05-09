@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Valour.Api.Items.Planets;
 using Valour.Net.CommandHandling;
 
 namespace Valour.Net.TypeConverters

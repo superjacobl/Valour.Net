@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.CommandHandling.Attributes;
 using Valour.Net.ErrorHandling;
+using Valour.Net.ModuleHandling.Models.InfoModels;
 
 namespace Valour.Net.CommandHandling.Builders
 {
@@ -26,38 +27,38 @@ namespace Valour.Net.CommandHandling.Builders
             Command.Parameters.Add(builder.Parameter);
         }
 
-        public void BuildCommand(MethodInfo Method, ModuleInfo moduleInfo)
+        public void BuildCommand(ValourMethodInfo Method, ModuleInfo moduleInfo)
         {
             //DEBUG
-            Type magicType = Method.DeclaringType;
-            CommandAttribute CommandAttr = (CommandAttribute)Method.GetCustomAttribute(typeof(CommandAttribute));
+            Type magicType = Method.methodInfo.DeclaringType;
+            CommandAttribute CommandAttr = (CommandAttribute)Method.methodInfo.GetCustomAttribute(typeof(CommandAttribute));
             Command.MainAlias = CommandAttr.Name;
             Command.Aliases = new List<string>();
             Command.Method = Method;
             Command.moduleInfo = moduleInfo;
-            AliasAttribute AliasAttr = (AliasAttribute)Method.GetCustomAttribute(typeof(AliasAttribute));
+            AliasAttribute AliasAttr = (AliasAttribute)Method.methodInfo.GetCustomAttribute(typeof(AliasAttribute));
             if (AliasAttr != null) {
                 foreach (string alias in AliasAttr.Aliases) {
                     Command.Aliases.Add(alias.ToLower());
                 }
             }
             
-            OnlyRoleAttribute OnlyRolesAttr = (OnlyRoleAttribute)Method.GetCustomAttribute(typeof(OnlyRoleAttribute));
+            OnlyRoleAttribute OnlyRolesAttr = (OnlyRoleAttribute)Method.methodInfo.GetCustomAttribute(typeof(OnlyRoleAttribute));
             if (OnlyRolesAttr != null) {
                 Command.OnlyRoles = new List<string>();
                 Command.OnlyRoles.AddRange(OnlyRolesAttr.Roles);
             }
 
-            ExpectRoleAttribute expectRoleAttribute = (ExpectRoleAttribute)Method.GetCustomAttribute(typeof(ExpectRoleAttribute));
+            ExpectRoleAttribute expectRoleAttribute = (ExpectRoleAttribute)Method.methodInfo.GetCustomAttribute(typeof(ExpectRoleAttribute));
             if (expectRoleAttribute != null) {
                 Command.ExpectRoles = new List<string>();
                 Command.ExpectRoles.AddRange(expectRoleAttribute.Roles);
             }
 
-            FallBackAttribute fallBackAttribute = (FallBackAttribute)Method.GetCustomAttribute(typeof(FallBackAttribute));
+            FallBackAttribute fallBackAttribute = (FallBackAttribute)Method.methodInfo.GetCustomAttribute(typeof(FallBackAttribute));
             if (fallBackAttribute != null)
             {
-                if (Method.GetParameters().Any(parameter => parameter.ParameterType != typeof(CommandContext)))
+                if (Method.methodInfo.GetParameters().Any(parameter => parameter.ParameterType != typeof(CommandContext)))
                 {
                     Console.WriteLine(new GenericError($"Fallback method {Command.MainAlias} in module {moduleInfo.Name} contains parameters other than CommandContext. Command will not be loaded", ErrorSeverity.WARN));
                     return;
@@ -65,11 +66,9 @@ namespace Valour.Net.CommandHandling.Builders
                 Command.IsFallback = true;
             }
 
-
-
             if (!Command.IsFallback)
             {
-                foreach (System.Reflection.ParameterInfo parameterinfo in Method.GetParameters())
+                foreach (System.Reflection.ParameterInfo parameterinfo in Method.methodInfo.GetParameters())
                 {
                     if (parameterinfo.ParameterType != typeof(CommandContext))
                     {
@@ -80,13 +79,9 @@ namespace Valour.Net.CommandHandling.Builders
 
             moduleInfo.AddCommand(Command);
             CommandService.RegisterCommand(Command);
-            
+
             //CommandAttr.
             //Method.Invoke(magicClassObject, null);
-            
         }
-        
-
-
     }
 }
