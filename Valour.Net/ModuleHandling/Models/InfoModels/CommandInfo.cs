@@ -7,6 +7,7 @@ using System.ComponentModel;
 using Valour.Net.TypeConverters;
 using Valour.Net.ModuleHandling.Models.InfoModels;
 using Valour.Net.CustomAttributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Valour.Net.CommandHandling.InfoModels;
 
@@ -34,7 +35,14 @@ internal class CommandInfo
     */
 
     public List<object> ConvertStringArgs(List<string> args, CommandContext ctx) {
-        List<object> objects = new();
+		//using (var serviceScope = ValourNetClient.Services.CreateScope())
+		//{
+		//	var services = serviceScope.ServiceProvider;
+//
+		//	var myDependency = services.GetRequiredService<IMyDependency>();
+		//	myDependency.WriteMessage("Call services from main");
+		//}
+		List<object> objects = new();
         objects.Add(ctx);
         for (int i = 0; i < Parameters.Count; i++)
         {
@@ -63,12 +71,17 @@ internal class CommandInfo
                     objects.Add(null);
                     continue;
                 }
-                if (PlanetMemberConverter.CanConvertFrom(args[i])) {
+                if (i < args.Count() && PlanetMemberConverter.CanConvertFrom(args[i])) {
                     objects.Add(PlanetMemberConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
                 }
                 else
                 {
-                    objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
+                    if (i >= args.Count() || !typeConverter.CanConvertFrom(args[i].GetType())) 
+                    {
+                        objects.Add(ctx.ServiceScope.ServiceProvider.GetRequiredService(Parameters[i].Type));
+                    }
+                    else
+                        objects.Add(typeConverter.ConvertFrom(new CommandArgConverterContext(ctx), System.Globalization.CultureInfo.CurrentCulture, args[i]));
                 }
             }
             else
@@ -92,6 +105,7 @@ internal class CommandInfo
 
     public async Task<bool> CheckIfCommand(string name, List<string> args, CommandContext ctx) {
         //Console.WriteLine(Aliases);
+        int extraI = 0;
         if (MainAlias.ToLower() == name.ToLower() || Aliases.Contains(name.ToLower())) {
             if (args.Count != Parameters.Count) {
                 if (Parameters.Count > 0) {
@@ -100,6 +114,16 @@ internal class CommandInfo
                         if (parameter.Info.HasDefaultValue) {
                             i += 1;
                         }
+                        else
+                        {
+							var argtype = parameter.Type;
+                            if (ValourNetClient.Services.Any(x => x.ServiceType == argtype))
+                            {
+                                i += 1;
+                                extraI += 1;
+
+							}
+						}
                     }
                     if (i != Parameters.Count) {
                         if (Parameters.Last().IsRemainder == false) {
@@ -117,7 +141,7 @@ internal class CommandInfo
                 return false;
             }
 
-            for (int i = 0; i < Parameters.Count; i++)
+            for (int i = 0; i < Parameters.Count-extraI; i++)
             {
                 try {
                     if (Parameters[i].Info.HasDefaultValue) {
@@ -133,8 +157,11 @@ internal class CommandInfo
                     {
                         if (!typeConverter.CanConvertFrom(args[i].GetType()))
                         {
-                            return false;
-                        }   
+                            // check if this can come from a service
+                            var argtype = Parameters[i].GetType();
+                            if (!ValourNetClient.Services.Any(x => x.ServiceType == argtype))
+                                return false;
+                        }
                     }                  
                 }
                 catch (Exception e){

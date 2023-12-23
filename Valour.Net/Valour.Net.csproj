@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.6.7.5</Version>
+    <Version>0.8.0.1</Version>
     <Company />
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
@@ -19,15 +19,13 @@
 
   <ItemGroup>
     <!-- <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" /> -->
-    <PackageReference Include="IdGen" Version="3.0.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.4.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+    <PackageReference Include="IdGen" Version="3.0.3" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.0-2.final" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+	<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
   </ItemGroup>
-
-	<ItemGroup Condition="false">
-		<PackageReference Include="Valour.Api" Version="0.1.7" />
-		<PackageReference Include="Valour.Shared" Version="0.1.7" />
-	</ItemGroup>
 
   <ItemGroup>
 	  <None Include="logo.png">
@@ -35,9 +33,15 @@
 		  <PackagePath></PackagePath>
 	  </None>
   </ItemGroup>
-
-  <ItemGroup Condition="true">
-	  <ProjectReference Include="..\..\Valour\Valour\API\Valour.Api.csproj" />
-	  <ProjectReference Include="..\..\Valour\Valour\Shared\Valour.Shared.csproj" />
+  <ItemGroup Condition="false">
+	<ProjectReference Include="..\..\Valour\Valour\API\Valour.Api.csproj" />
+	<ProjectReference Include="..\..\Valour\Valour\Shared\Valour.Shared.csproj" />
+  </ItemGroup>
+	<ItemGroup Condition="true">
+		<PackageReference Include="Valour.Api" Version="0.3.0" />
+		<PackageReference Include="Valour.Shared" Version="0.3.0" />
+	</ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup> 
 </Project>

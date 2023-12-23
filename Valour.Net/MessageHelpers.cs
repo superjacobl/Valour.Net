@@ -6,8 +6,9 @@ namespace Valour.Net.Client.MessageHelper;
 
 public static class MessageHelpers
 {
-    public static void GenerateForPost(PlanetMessage msg)
+    public static void GenerateForPost(Message msg)
     {
+        // TODO: in the future, look into removing this function
         msg.ClearMentions();
 
         int pos = 0;
@@ -63,10 +64,7 @@ public static class MessageHelpers
                         Mention memberMention = new()
                         {
                             TargetId = id,
-                            Position = (ushort)pos,
-                            Length = (ushort)(6 + id_chars.Length),
-                            Type = MentionType.Member,
-                            PlanetId = msg.PlanetId                     
+                            Type = MentionType.PlanetMember,                 
                         };
                         //msg.Content = msg.Content.Replace($"«@m-{id}»", "");
                         msg.Mentions.Add(memberMention);
@@ -118,10 +116,7 @@ public static class MessageHelpers
                         Mention channelMention = new()
                         {
                             TargetId = id,
-                            Position = (ushort)pos,
-                            Length = (ushort)(6 + id_chars.Length),
-                            Type = MentionType.Channel,
-                            PlanetId = msg.PlanetId
+                            Type = MentionType.Channel
                         };
                         //msg.Content = msg.Content.Replace($"«#c-{id}»", "");
                         msg.Mentions.Add(channelMention);

@@ -9,26 +9,28 @@ using System.Collections.Concurrent;
 using Valour.Net;
 using Valour.Api.Client;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Valour.Net.CommandHandling;
 
 public abstract class IContext
 {
     public Planet Planet { get; set;}
-    public PlanetChatChannel Channel { get; set;}
+    public Channel Channel { get; set;}
     public PlanetMember Member { get; set;}
 
-    /// <summary>
-    /// Mainly used for EventFilters
-    /// </summary>
-    public Dictionary<string, object> Items { get; set; } = new();
+	public AsyncServiceScope ServiceScope { get; set; }
+
+	/// <summary>
+	/// Mainly used for EventFilters
+	/// </summary>
+	public Dictionary<string, object> Items { get; set; } = new();
 
     /// <summary>
     /// Sends a message in the same channel as the Command was executed in.
     /// </summary>
     /// <param name="content">What the message should say.</param>
     /// <returns></returns>
-
     public async Task ReplyAsync(string content)
     {
         await ValourNetClient.PostMessage(Channel.Id, Planet.Id, content, null);

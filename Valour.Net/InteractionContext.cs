@@ -22,7 +22,7 @@ namespace Valour.Net.CommandHandling
         public async Task SetFromImteractionEvent(EmbedInteractionEvent IEvent)
         {
             Planet = await Planet.FindAsync(IEvent.PlanetId);
-            Channel = await PlanetChatChannel.FindAsync(IEvent.ChannelId, IEvent.PlanetId);
+            Channel = await Channel.FindAsync(IEvent.ChannelId, IEvent.PlanetId);
             Member = await PlanetMember.FindAsync(IEvent.MemberId, IEvent.PlanetId);
             Event = IEvent;
         }

@@ -12,8 +12,11 @@ public class ChannelWatchingContext : IContext
 
     internal async Task Set(ChannelWatchingUpdate update)
     {
-        Channel = ValourCache.GetAll<PlanetChatChannel>().FirstOrDefault(x => x.Id == update.ChannelId);
-        channelWatchingUpdate = update;
-        Planet = await Planet.FindAsync(Channel.PlanetId);
+        Channel = ValourCache.GetAll<Channel>().FirstOrDefault(x => x.Id == update.ChannelId);
+        if (Channel is not null)
+        {
+            channelWatchingUpdate = update;
+            Planet = await Planet.FindAsync((long)Channel.PlanetId);
+        }
     }
 }

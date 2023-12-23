@@ -1,12 +1,13 @@
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Valour.Net.CommandHandling;
 
 public class CommandContext : IContext
 {
-    public PlanetMessage Message { get; set;}
+    public Message Message { get; set;}
     public TimeSpan MessageTimeTook { get; set; }
     public DateTime TimeReceived { get; set; }
 
@@ -21,11 +22,11 @@ public class CommandContext : IContext
 
     public CommandContext() { }
 
-    internal async Task Set(PlanetMessage msg)
+    internal async Task Set(Message msg)
     {
-        Channel = await PlanetChatChannel.FindAsync(msg.ChannelId, msg.PlanetId);
-        Member = await PlanetMember.FindAsync(msg.AuthorMemberId, msg.PlanetId);
+        Channel = await Channel.FindAsync(msg.ChannelId, msg.PlanetId);
+        Member = await PlanetMember.FindAsync((long)msg.AuthorMemberId, (long)msg.PlanetId);
         Message = msg;
-        Planet = await Planet.FindAsync(Channel.PlanetId);
+        Planet = await Planet.FindAsync((long)Channel.PlanetId);
     }
 }
