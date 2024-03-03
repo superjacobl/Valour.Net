@@ -5,7 +5,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Valour.Api.Models.Messages.Embeds.Items;
+using Valour.Sdk.Models.Messages.Embeds.Items;
 using Valour.Net.CommandHandling;
 
 namespace Valour.Net.EmbedMenu;

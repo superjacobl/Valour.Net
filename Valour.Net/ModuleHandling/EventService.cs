@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling.InfoModels;
 using Valour.Net.ModuleHandling.Models.InfoModels;
-using Valour.Api.Client;
+using Valour.Sdk.Client;
 
 namespace Valour.Net.CommandHandling;
 

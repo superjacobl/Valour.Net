@@ -7,9 +7,9 @@ using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Collections.Concurrent;
 using Valour.Net;
-using Valour.Api.Client;
+using Valour.Sdk.Client;
 using System.Text.Json;
-using Valour.Api.Models.Messages.Embeds.Items;
+using Valour.Sdk.Models.Messages.Embeds.Items;
 
 namespace Valour.Net.CommandHandling
 {

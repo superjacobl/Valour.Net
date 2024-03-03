@@ -1,14 +1,14 @@
-﻿global using Valour.Api.Models;
-global using Valour.Api.Items;
+﻿global using Valour.Sdk.Models;
+global using Valour.Sdk.Items;
 global using Valour.Shared.Models;
 global using Valour.Net.Client;
-global using Valour.Api.Models.Messages;
+global using Valour.Sdk.Models.Messages;
 global using Valour.Net.CommandHandling.Attributes;
 global using Valour.Net.EmbedMenu;
-global using Valour.Api.Nodes;
+global using Valour.Sdk.Nodes;
 global using Valour.Shared;
 global using Valour.Shared.Channels;
-global using Valour.Api.Client;
+global using Valour.Sdk.Client;
 global using System;
 global using System.Collections.Generic;
 global using System.Linq;
@@ -17,7 +17,7 @@ global using System.Net.Http.Json;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Threading.Tasks;
-global using Valour.Api.Models.Messages.Embeds;
+global using Valour.Sdk.Models.Messages.Embeds;
 global using Valour.Net.PlanetEconomy;
 
 //using Microsoft.AspNetCore.SignalR.Client;
@@ -35,7 +35,7 @@ using System.Collections.Concurrent;
 using Valour.Net.ModuleHandling.Models.InfoModels;
 using Valour.Net.CustomAttributes;
 using System.Numerics;
-using Valour.Api.Models.Economy;
+using Valour.Sdk.Models.Economy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Valour.Net.Client
@@ -256,7 +256,7 @@ namespace Valour.Net.Client
 
 			ValourClient.SetHttpClient(client);
 
-            Token = (await ValourClient.GetToken(email, password)).Data;
+            Token = (await ValourClient.GetToken(email, password)).Data.Id;
             if (Token == null) //Token returned null meaning valour is unavailable
                 return;
 

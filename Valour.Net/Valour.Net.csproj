@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.8.0.1</Version>
+    <Version>0.8.0.2</Version>
     <Company />
     <PackageLicenseFile></PackageLicenseFile>
     <RepositoryUrl>https://github.com/superjacobl/Valour.Net</RepositoryUrl>
@@ -24,7 +24,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-	<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
+	<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.1" />
+	<PackageReference Include="Valour.Sdk" Version="0.3.5.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,12 +35,11 @@
 	  </None>
   </ItemGroup>
   <ItemGroup Condition="false">
-	<ProjectReference Include="..\..\Valour\Valour\API\Valour.Api.csproj" />
+	<ProjectReference Include="..\..\Valour\Valour\API\Valour.Sdk.csproj" />
 	<ProjectReference Include="..\..\Valour\Valour\Shared\Valour.Shared.csproj" />
   </ItemGroup>
 	<ItemGroup Condition="true">
-		<PackageReference Include="Valour.Api" Version="0.3.0" />
-		<PackageReference Include="Valour.Shared" Version="0.3.0" />
+		<PackageReference Include="Valour.Shared" Version="0.3.5.1" />
 	</ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />

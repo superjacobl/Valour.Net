@@ -1,4 +1,4 @@
-using Valour.Api.Models.Economy;
+using Valour.Sdk.Models.Economy;
 
 namespace Valour.Net.PlanetEconomy;
 
