@@ -1,0 +1,626 @@
+{
+  "homepages": [],
+  "source_base_path": "/github/workspace/docfx",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Client.MarkdownStuff.MarkdownManager.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Client.MarkdownStuff.MarkdownManager.html",
+          "hash": "SXVDUc4t6TRIwsG+HAn7/Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Client.MarkdownStuff.VooperMediaLinkExtension.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Client.MarkdownStuff.VooperMediaLinkExtension.html",
+          "hash": "ydW+1lVhdKwE2QMZp7PFzQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Client.MarkdownStuff.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Client.MarkdownStuff.html",
+          "hash": "8tDm1LIDSOGHHox+edJkiQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Client.MessageHelper.MessageHelpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Client.MessageHelper.MessageHelpers.html",
+          "hash": "RyC8S0F1fByL3p39iv8uow=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Client.MessageHelper.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Client.MessageHelper.html",
+          "hash": "GmVPYdBTmtzQMKgDuLfrcg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Client.ValourNetClient.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Client.ValourNetClient.html",
+          "hash": "7CUDUMUvwI0m+Hkf9JRrZQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Client.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Client.html",
+          "hash": "MOyWeZV9SQ7kfz3hANJJGQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.AliasAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.AliasAttribute.html",
+          "hash": "r/BV90q81s5vl1enHVd95w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.CommandAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.CommandAttribute.html",
+          "hash": "T8vmZoyey2zZdsCFUCVjlQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.DontAutoLoadAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.DontAutoLoadAttribute.html",
+          "hash": "xlTuXWnwetN9r5J2hXY5rA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.EmbedMenuFuncAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.EmbedMenuFuncAttribute.html",
+          "hash": "oItKdTErWKrC78AJqmWjRQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.EventAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.EventAttribute.html",
+          "hash": "byJq/THZXEMIUTtrT/OaCA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.ExpectRoleAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.ExpectRoleAttribute.html",
+          "hash": "TB2RYC7U9Y5/K6UK8YpDQw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.FallBackAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.FallBackAttribute.html",
+          "hash": "EXBr4UhaWDNf09hXMFkQew=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.GroupAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.GroupAttribute.html",
+          "hash": "ZrNANQ+Z2Iw6GTZwKvfvKQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.InteractionAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.InteractionAttribute.html",
+          "hash": "gwLbodJCH/y4ieG+qjUsAQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.OnlyRoleAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.OnlyRoleAttribute.html",
+          "hash": "0yG81SLgeNDyiEwdOB1Gbw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.RemainderAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.RemainderAttribute.html",
+          "hash": "tNCtBfgIfDnWbjBGLYWWyA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.SummaryAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.SummaryAttribute.html",
+          "hash": "5mrVikwJ366hiPoeClhbEA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.SwitchInputAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.SwitchInputAttribute.html",
+          "hash": "PSANJE583PVfKICl1dS/bA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.Attributes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.Attributes.html",
+          "hash": "9aj7ep/ir9YeR8RN13TV2w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.ChannelWatchingContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.ChannelWatchingContext.html",
+          "hash": "h1Usy2cXhezJs0UI5oHnWQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.CommandContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.CommandContext.html",
+          "hash": "sxzJL53CkmUIjf73mEinrw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.CommandModuleBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.CommandModuleBase.html",
+          "hash": "NkgK9jGlNNZecXcZqJffJA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.EventType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.EventType.html",
+          "hash": "qLqtv8nrxpMSZQYoIMqzzw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.IContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.IContext.html",
+          "hash": "9FxYIpq/k+4LXccX/MC9Pg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.InteractionContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.InteractionContext.html",
+          "hash": "VmbXI3TJ3vzJH5lWxND8zQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.ModuleRegistrar.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.ModuleRegistrar.html",
+          "hash": "WZv1PxrwEnZIEbqtms2flA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CommandHandling.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CommandHandling.html",
+          "hash": "dH+kaZXv1UrQB5t9tenBAQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CustomAttributes.EventFilterInvocationContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CustomAttributes.EventFilterInvocationContext.html",
+          "hash": "WNpjuR9NKIDYcS6stII9hw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CustomAttributes.IEventFilter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CustomAttributes.IEventFilter.html",
+          "hash": "0U+O6gAJgJqoTnKzxYnH4g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CustomAttributes.IEventFilterAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CustomAttributes.IEventFilterAttribute.html",
+          "hash": "gFP8Dn4Shlx/sbScfoDGIQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.CustomAttributes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.CustomAttributes.html",
+          "hash": "ODrUDxFmtiwTOkj51M48HQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.EmbedMenu.EmbedMenu.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.EmbedMenu.EmbedMenu.html",
+          "hash": "0CDVGXPrmVeAhYazPvDTnA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.EmbedMenu.EmbedMenuExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.EmbedMenu.EmbedMenuExtensions.html",
+          "hash": "gkw57cTMeTS9vy2QNUKQOw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.EmbedMenu.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.EmbedMenu.html",
+          "hash": "dXq7ZOYzSeRsrhI78Q5FTA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.ErrorHandling.ErrorSeverity.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.ErrorHandling.ErrorSeverity.html",
+          "hash": "Wx/5Y0ly2A2HO6+jM5Ds7g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.ErrorHandling.GenericError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.ErrorHandling.GenericError.html",
+          "hash": "7cK87XBe2CIEZDfGHt2ErQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.ErrorHandling.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.ErrorHandling.html",
+          "hash": "THiBamFVanlQLKup85psMQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Global.IModuleBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Global.IModuleBase.html",
+          "hash": "HCvGs0Gbsz8qRhOOtDgJtA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.Global.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.Global.html",
+          "hash": "2h5nGaLxF+iwdtRJdkreGw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.PlanetEconomy.PlanetEconomyExtensionMethods.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.PlanetEconomy.PlanetEconomyExtensionMethods.html",
+          "hash": "TPY4s578GLa0pNasjI21Yg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.PlanetEconomy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.PlanetEconomy.html",
+          "hash": "HQD9nEb1SoKt+IyTYJwsZg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.TypeConverters.PlanetMemberConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.TypeConverters.PlanetMemberConverter.html",
+          "hash": "kwPGVPBT9eNtWe8FZi6jxg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.TypeConverters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.TypeConverters.html",
+          "hash": "tR4IcqdY8Hlq2T5K5p84yA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.ValourResponse-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.ValourResponse-1.html",
+          "hash": "cawN05+FuHe9VOOysvaXzw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Valour.Net.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Valour.Net.html",
+          "hash": "7RYus06+s7SHQjzYKth+HA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html",
+          "hash": "glGE21/wHQmg6BF9khs13g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    }
+  ],
+  "incremental_info": [
+    {
+      "status": {
+        "can_incremental": false,
+        "details": "Cannot build incrementally because last build info is missing.",
+        "incrementalPhase": "build",
+        "total_file_count": 0,
+        "skipped_file_count": 0,
+        "full_build_reason_code": "NoAvailableBuildCache"
+      },
+      "processors": {
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 47,
+          "skipped_file_count": 0
+        },
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        }
+      }
+    },
+    {
+      "status": {
+        "can_incremental": false,
+        "details": "Cannot support incremental post processing, the reason is: last post processor info is null.",
+        "incrementalPhase": "postProcessing",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {}
+    }
+  ],
+  "version_info": {},
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}
